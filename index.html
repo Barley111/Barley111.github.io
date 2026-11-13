@@ -118,7 +118,18 @@
 
       <div class="proj-grid">
         <!-- PROJECTS:AUTO START（本区块由 admin.html 管理终端读写，手动修改会被覆盖） -->
-        <!-- 新项目卡片：复制一个 proj-card 放到最上面，参考 README.md -->
+        <div class="proj-card reveal">
+          <div class="proj-head">
+            <span>PRJ.004</span>
+            <span class="proj-status" data-s="idea">构想中</span>
+          </div>
+          <h3>宝可梦全图鉴闪光计划</h3>
+          <p>应对2027年2月26日Pokemon Bank 关闭，希望可以和前时代的伙伴一起进行接下来的冒险</p>
+          <div class="proj-tags">
+            <span class="tag">游戏</span><span class="tag">计划</span>
+          </div>
+          <a class="proj-link" href="#" onclick="return false;">查看项目 ▸</a>
+        </div>
         <div class="proj-card reveal">
           <div class="proj-head">
             <span>PRJ.001</span>
@@ -131,11 +142,10 @@
           </div>
           <a class="proj-link" href="posts/build-log.html">查看搭建记录 ▸</a>
         </div>
-
         <div class="proj-card reveal">
           <div class="proj-head">
             <span>PRJ.002</span>
-            <span class="proj-status" data-s="dev">创作中</span>
+            <span class="proj-status" data-s="dev">开发中</span>
           </div>
           <h3>宝可梦同人小说</h3>
           <p>县域融合题材的世界观设定与连载企划，设定集 V1.1 已完成，正文在写（真的）。</p>
@@ -144,7 +154,6 @@
           </div>
           <a class="proj-link" href="about.html">简介待公开 ▸</a>
         </div>
-
         <div class="proj-card reveal" style="border-style: dashed; opacity: 0.6;">
           <div class="proj-head">
             <span>PRJ.003</span>
@@ -171,7 +180,6 @@
 
       <ul class="plan-list">
         <!-- PLANS:AUTO START（本区块由 admin.html 管理终端读写，手动修改会被覆盖） -->
-        <!-- 点击卡片可循环切换：待启动 → 进行中 → 已完成（状态自动保存在本地） -->
         <li class="plan-item reveal" data-state="doing" data-plan-id="plan-01">
           <span class="plan-box"></span>
           <span class="plan-text">把宝可梦小说的第一章写完</span>
@@ -182,10 +190,10 @@
           <span class="plan-text">给信号站接入评论系统（giscus）</span>
           <span class="plan-status">待启动</span>
         </li>
-        <li class="plan-item reveal" data-state="todo" data-plan-id="plan-03">
+        <li class="plan-item reveal" data-state="done" data-plan-id="plan-03">
           <span class="plan-box"></span>
           <span class="plan-text">上线 GitHub Pages，把信号站搬上公网</span>
-          <span class="plan-status">待启动</span>
+          <span class="plan-status">已完成</span>
         </li>
         <li class="plan-item reveal" data-state="todo" data-plan-id="plan-04">
           <span class="plan-box"></span>
