@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="信号站的搭建记录：为什么选择纯手写静态页面，设计灵感来自哪里，以及上线路线图。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>信号站搭建记录 · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="rail-page">
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="../index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a class="active" href="../index.html"><span>首页 INDEX</span></a>
+        <a href="../about.html"><span>关于 ABOUT</span></a>
+        <a href="https://github.com/你的用户名" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <!-- ===== 左侧导览（文章目录自动生成） ===== -->
+  <aside class="rail" id="rail">
+    <div class="rail-head">TOC.SYSTEM</div>
+    <nav class="rail-nav" id="rail-nav">
+      <!-- 目录由 main.js 自动抓取正文 h2 生成 -->
+    </nav>
+    <div class="rail-foot">
+      <a href="../index.html">◂ 返回首页</a>
+      <span class="rail-ver">VER 1.1.0</span>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <button class="menu-fab" id="menuBtn">▤ MENU</button>
+
+  <main>
+    <article class="article narrow">
+      <div class="article-head">
+        <div class="crumbs"><a href="../index.html">HOME</a> / POSTS // 002</div>
+        <h1>信号站搭建记录 —— 一个人也能点亮一座基站</h1>
+        <div class="article-meta">
+          <span class="date">2026-11-11</span>
+          <span class="tag">技术</span>
+          <span>阅读约 5 分钟</span>
+        </div>
+      </div>
+
+      <div class="article-body">
+        <p>这篇文章记录信号站 v1.0 的搭建过程：目标、选型、设计笔记和上线路线。写给它自己，也写给未来想改版的自己。</p>
+
+        <h2>一、需求清单</h2>
+        <ul>
+          <li>别人在浏览器里<strong>点开一个链接就能看</strong>，不需要注册、不需要装 App；</li>
+          <li><strong>免费托管</strong>，最好不花一分钱；</li>
+          <li><strong>离线可写</strong>——网络再抽风，也不影响本地写作和预览；</li>
+          <li>加载要快，没有乱七八糟的依赖；</li>
+          <li>外观要有辨识度，不能像模板站。</li>
+        </ul>
+
+        <h2>二、选型：为什么是纯手写静态页</h2>
+        <p>主流方案有三条路：</p>
+        <ul>
+          <li><strong>WordPress 之类</strong>——功能全，但需要服务器和数据库，维护成本高，杀鸡用牛刀；</li>
+          <li><strong>Hexo / Hugo 静态生成器</strong>——写 Markdown 很舒服，但要装依赖、挑主题、学配置，而且好主题基本都躺在 GitHub 上（本次恰好连不上）；</li>
+          <li><strong>纯手写 HTML + CSS + 少量 JS</strong>——零依赖、零构建、完全可控。写新文章就是复制一个模板文件。</li>
+        </ul>
+        <blockquote>对个人博客来说，「能一直写下去」比「功能齐全」重要得多。所以我选了最不会坏的那条路：直接写 HTML。</blockquote>
+        <p>反正以后随时可以迁移到 Hexo/Hugo——静态页面的好处就是搬到哪都能用。</p>
+
+        <h2>三、设计笔记</h2>
+        <p>视觉方向定为<strong>「明日方舟式终端 UI × 初音未来配色」</strong>：</p>
+        <ul>
+          <li>深色控制台底色 + 微弱的网格与扫描线，营造「基站机房」氛围；</li>
+          <li>主色取初音未来的代表色 <code>#39C5BB</code>（葱绿），辅以少量琥珀黄做警示点缀；</li>
+          <li>面板采用斜切角（clip-path）和倾斜的导航按钮，来自明日方舟 UI 的经典语言；</li>
+          <li>状态栏、HUD 芯片、等宽字体，让页面看起来像一台正在运行的设备；</li>
+          <li>首页的打字机光标和心跳灯，是这座基站的「生命体征」。</li>
+        </ul>
+        <pre><code>:root {
+  --teal: #39c5bb;   /* 初音绿：主色 */
+  --bg: #0a0e13;     /* 机房深空底色 */
+  --yellow: #f0c75e; /* 琥珀黄：警示点缀 */
+}</code></pre>
+
+        <h2>四、目录结构</h2>
+        <pre><code>my-blog/
+├── index.html          首页（文章列表）
+├── about.html          关于页（站长档案）
+├── posts/              文章目录
+│   ├── hello-world.html
+│   ├── build-log.html  ← 你正在看这篇
+│   └── TEMPLATE.html   新文章模板
+└── assets/
+    ├── css/style.css   设计系统
+    └── js/main.js      打字机 / 统计 / 动画</code></pre>
+
+        <h2>五、上线路线</h2>
+        <p>托管选 <strong>GitHub Pages</strong>：免费、稳定、直链可访问。步骤概要：</p>
+        <ol>
+          <li>在 GitHub 新建仓库 <code>用户名.github.io</code>；</li>
+          <li>把这个文件夹里的所有文件推上去；</li>
+          <li>打开仓库 Settings → Pages，选择 main 分支；</li>
+          <li>等一两分钟，<code>https://用户名.github.io</code> 就是这座信号站的公开地址。</li>
+        </ol>
+        <p>完整命令和「连不上 GitHub 怎么办」的排查手册，都写在项目的 <code>README.md</code> 里。</p>
+
+        <h2>六、后续计划 TODO</h2>
+        <ul>
+          <li>□ 标签归档页；</li>
+          <li>□ RSS 订阅（让别人的阅读器也能收到信号）；</li>
+          <li>□ 评论系统（giscus，基于 GitHub Discussions）；</li>
+          <li>□ 更多文章（最重要的一条）。</li>
+        </ul>
+
+        <hr>
+
+        <p>基站点亮，就此开机。</p>
+        <p style="font-family: var(--mono); color: var(--teal); font-size: 14px;">&gt; BUILD v1.0.0 // DEPLOY PENDING_</p>
+      </div>
+
+      <div class="article-nav">
+        <a href="hello-world.html">◂ 上一篇：初次连接</a>
+        <a href="../index.html">返回首页 ▸</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
