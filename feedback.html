@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="信号站留言板 —— 公开留言区，欢迎来这里提建议、报 bug 或唠嗑。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>留言板 // MAIL · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html"><span>首页 INDEX</span></a>
+        <a href="about.html"><span>关于 ABOUT</span></a>
+        <a class="active" href="feedback.html"><span>留言 MAIL</span></a>
+        <a href="https://github.com/你的用户名" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="article narrow">
+      <div class="article-head">
+        <div class="crumbs"><a href="index.html">HOME</a> / MAIL // 留言板</div>
+        <h1>留言板</h1>
+        <div class="article-meta">
+          <span>CH.FEEDBACK</span>
+          <span class="date">OPEN // 全时段接收信号</span>
+        </div>
+      </div>
+
+      <p class="fb-note reveal">这里是公开留言板——所有人都能看到这里的留言。建议、报错、催更、唠嗑统统欢迎。发布评论需要登录 GitHub 账号（评论框里有登录按钮，点击即可）；没有账号的访客也欢迎随意浏览。</p>
+
+      <!-- ===== 公开留言板（giscus：评论存于 GitHub Discussions） ===== -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>留言板</h2>
+          <span class="mono-tag">GUESTBOOK</span>
+          <span class="rule"></span>
+        </div>
+        <script src="https://giscus.app/client.js"
+          data-repo="Barley111/Barley111.github.io"
+          data-repo-id="R_kgDOVtNPhg"
+          data-category="Announcements"
+          data-category-id="DIC_kwDOVtNPhs4DLDYs"
+          data-mapping="pathname"
+          data-strict="0"
+          data-reactions-enabled="1"
+          data-emit-metadata="0"
+          data-input-position="top"
+          data-theme="transparent_dark"
+          data-lang="zh-CN"
+          data-loading="lazy"
+          crossorigin="anonymous"
+          async></script>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
