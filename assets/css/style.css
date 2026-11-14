@@ -690,3 +690,37 @@ code, pre { font-family: var(--mono); }
 .sc-time { font-family: var(--mono); font-size: 11px; color: var(--text-dim); flex-shrink: 0; }
 .sc-content { font-size: 15px; line-height: 1.7; color: var(--text); word-break: break-word; white-space: pre-wrap; }
 @media (max-width: 640px) { .sc-item-head { flex-direction: column; gap: 2px; } }
+
+/* ---------- v1.4 归档 / 信号歌单 / 友链 ---------- */
+.sec-more { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; color: var(--text-dim); margin-left: 14px; white-space: nowrap; transition: color 0.2s; }
+.sec-more:hover { color: var(--teal); }
+
+.music-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.music-card { display: flex; gap: 14px; align-items: center; background: var(--panel); border: 1px solid var(--line); padding: 14px; clip-path: var(--clip-corner-sm); transition: border-color 0.2s, transform 0.2s; }
+.music-card:hover { border-color: var(--teal-soft); transform: translateY(-2px); }
+.music-card.dashed { border-style: dashed; opacity: 0.78; }
+.music-cover { width: 56px; height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--teal-faint); border: 1px solid var(--teal-soft); color: var(--teal); font-size: 26px; clip-path: var(--clip-corner-sm); }
+.music-info { flex: 1; min-width: 0; }
+.music-info h3 { font-size: 15px; color: var(--text-bright); margin-bottom: 4px; }
+.music-info p { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 6px; }
+.music-card .go { font-family: var(--mono); font-size: 11px; color: var(--teal); margin-left: auto; flex-shrink: 0; letter-spacing: 0.1em; }
+
+.arch-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+.arch-chip { cursor: pointer; font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; color: var(--text-dim); border: 1px solid var(--line-bright); background: transparent; padding: 7px 16px; clip-path: var(--clip-corner-sm); transition: color 0.15s, border-color 0.15s, background 0.15s; user-select: none; }
+.arch-chip:hover { color: var(--teal); border-color: var(--teal-soft); }
+.arch-chip.on { color: var(--teal); border-color: var(--teal); background: var(--teal-faint); }
+.arch-list { display: grid; gap: 12px; }
+.arch-item { display: flex; align-items: baseline; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-left: 2px solid var(--teal-soft); padding: 13px 18px; clip-path: var(--clip-corner-sm); transition: border-color 0.2s; }
+.arch-item:hover { border-color: var(--teal-soft); }
+.arch-date { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
+.arch-item h3 { font-size: 15.5px; color: var(--text-bright); font-weight: 600; flex: 1; min-width: 0; }
+.arch-tags-in { display: flex; gap: 6px; flex-shrink: 0; }
+@media (max-width: 640px) { .arch-item { flex-wrap: wrap; } .arch-tags-in { width: 100%; } }
+
+.link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 26px; }
+.link-card { display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); padding: 16px 18px; clip-path: var(--clip-corner-sm); transition: border-color 0.2s, transform 0.2s; }
+.link-card:hover { border-color: var(--teal-soft); transform: translateY(-2px); }
+.link-card.dashed { border-style: dashed; opacity: 0.78; }
+.link-avatar { width: 46px; height: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--teal-faint); border: 1px solid var(--teal-soft); color: var(--teal); font-family: var(--mono); font-size: 17px; clip-path: var(--clip-corner-sm); }
+.link-info h3 { font-size: 15px; color: var(--text-bright); }
+.link-info p { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }

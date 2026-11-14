@@ -20,9 +20,11 @@
       </a>
       <nav class="nav-links">
         <a class="active" href="index.html"><span>首页 INDEX</span></a>
+        <a href="archive.html"><span>归档 ARCHIVE</span></a>
         <a href="about.html"><span>关于 ABOUT</span></a>
         <a href="feedback.html"><span>留言 MAIL</span></a>
-        <a href="https://github.com/你的用户名" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+        <a href="links.html"><span>友链 LINKS</span></a>
+        <a href="https://github.com/Barley111" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
       </nav>
       <div class="nav-status"><span class="dot"></span>ONLINE</div>
     </div>
@@ -36,10 +38,13 @@
       <a class="rail-link" href="#posts"><span class="no">01</span>文章 POSTS</a>
       <a class="rail-link" href="#projects"><span class="no">02</span>项目 PROJECTS</a>
       <a class="rail-link" href="#plans"><span class="no">03</span>计划 PLANS</a>
+      <a class="rail-link" href="#music"><span class="no">04</span>音乐 MUSIC</a>
     </nav>
     <div class="rail-foot">
       <a href="about.html">▸ 关于 ABOUT</a>
       <a href="feedback.html">▸ 意见箱 MAIL</a>
+      <a href="archive.html">▸ 归档 ARCHIVE</a>
+      <a href="links.html">▸ 友链 LINKS</a>
       <span class="rail-ver">VER 1.1.0</span>
       <!-- 管理入口不写死在页面里：由 main.js 在站长浏览器上动态注入，游客不可见 -->
     </div>
@@ -76,6 +81,18 @@
       <div class="post-list">
         <!-- POSTS:AUTO START（本区块由 admin.html 管理终端读写，手动修改会被覆盖） -->
         <!-- 新文章请放在最上面，参考 README.md 的「如何写新文章」 -->
+        <a class="post-card reveal" href="posts/cthulhu-signal.html">
+          <div class="post-meta">
+            <span class="date">2026-11-14</span>
+            <span class="tag">小说</span>
+            <span class="tag">克苏鲁</span>
+            <span>SIGNAL.LOST</span>
+          </div>
+          <h3>来自深渊的信号 —— 信号站深夜观测记录</h3>
+          <p>0:39，频谱图上出现了一座不该存在的尖峰。本次观测附带克苏鲁神话入门包与 SAN 值保管指南。</p>
+          <span class="go">READ ▸</span>
+        </a>
+
         <a class="post-card reveal" href="posts/build-log.html">
           <div class="post-meta">
             <span class="date">2026-11-11</span>
@@ -210,6 +227,49 @@
         <!-- PLANS:AUTO END -->
       </ul>
       <p class="plan-hint">&gt; 点击条目可切换状态：待启动 → 进行中 → 已完成（自动保存在此浏览器）</p>
+    </section>
+
+    <!-- ===== 信号歌单 ===== -->
+    <section class="section wrap" id="music">
+      <div class="sec-head">
+        <h2>信号歌单</h2>
+        <span class="mono-tag">MUSIC.PLAYLIST</span>
+        <span class="rule"></span>
+      </div>
+
+      <!-- ═══ 音乐模块填卡教程 ═══
+           想加一首歌？把下面任意一张「待填曲目」卡片改成：
+      <a class="music-card reveal" href="B站视频链接" target="_blank" rel="noopener">
+        <div class="music-cover">♪</div>
+        <div class="music-info">
+          <h3>歌名</h3>
+          <p>歌手 / 出处（比如：初音未来 / B站 PV）</p>
+          <span class="tag">标签，如：初音未来</span>
+        </div>
+        <span class="go">PLAY ▸</span>
+      </a>
+           改完保存 → 双击 发布博客.bat 即可上线。卡片数量随意，加在最上面。 -->
+      <div class="music-grid">
+        <a class="music-card dashed reveal" href="#" onclick="return false;">
+          <div class="music-cover">♪</div>
+          <div class="music-info">
+            <h3>待填曲目 01</h3>
+            <p>第一首想推荐到信号架上的歌还没接上线路——编辑 index.html 的「信号歌单」区块即可点亮。</p>
+            <span class="tag">TODO</span>
+          </div>
+          <span class="go">SOON ▸</span>
+        </a>
+        <a class="music-card dashed reveal" href="#" onclick="return false;">
+          <div class="music-cover">♪</div>
+          <div class="music-info">
+            <h3>待填曲目 02</h3>
+            <p>占位中：一条 B 站链接 + 歌名 + 歌手，三样就能唤醒这张卡片。</p>
+            <span class="tag">TODO</span>
+          </div>
+          <span class="go">SOON ▸</span>
+        </a>
+      </div>
+      <p class="plan-hint">&gt; 想听的歌想安利给站长？去「留言」页说，下一期歌单见。</p>
     </section>
   </main>
 

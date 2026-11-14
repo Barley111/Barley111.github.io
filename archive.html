@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="信号站全部文章归档 —— 按标签与时间检索每一条已发送的信号。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>站内归档 // ARCHIVE · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html"><span>首页 INDEX</span></a>
+        <a class="active" href="archive.html"><span>归档 ARCHIVE</span></a>
+        <a href="about.html"><span>关于 ABOUT</span></a>
+        <a href="feedback.html"><span>留言 MAIL</span></a>
+        <a href="links.html"><span>友链 LINKS</span></a>
+        <a href="https://github.com/Barley111" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="article narrow">
+      <div class="article-head">
+        <div class="crumbs"><a href="index.html">HOME</a> / ARCHIVE // 站内归档</div>
+        <h1>站内归档</h1>
+        <div class="article-meta">
+          <span>ARCHIVE.ALL</span>
+          <span class="date">INDEXED // 自动同步首页列表</span>
+        </div>
+      </div>
+
+      <p class="fb-note reveal">本页自动抓取首页的文章列表实时生成——在管理终端发新文章后，这里会自动出现，无需手动维护。点标签可以筛选。</p>
+
+      <section class="comments-block reveal" style="margin-top: 26px;">
+        <div class="sec-head">
+          <h2>全部信号</h2>
+          <span class="mono-tag">ARCHIVE.LIST</span>
+          <span class="rule"></span>
+        </div>
+        <div class="arch-tags" id="archTags"></div>
+        <div class="arch-list" id="archList">
+          <div class="sc-empty">&gt; 正在同步归档索引……</div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var tagsBox = document.getElementById("archTags");
+    var listBox = document.getElementById("archList");
+    var items = [];   /* {href, date, title, tags[]} */
+    var active = "全部";
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== null) e.textContent = text;
+      return e;
+    }
+
+    function render() {
+      /* 标签 chips */
+      tagsBox.textContent = "";
+      var uniq = ["全部"];
+      items.forEach(function (it) {
+        it.tags.forEach(function (t) {
+          if (uniq.indexOf(t) === -1) uniq.push(t);
+        });
+      });
+      uniq.forEach(function (t) {
+        var chip = el("button", "arch-chip" + (t === active ? " on" : ""), t + (t === "全部" ? " " + items.length : ""));
+        chip.type = "button";
+        chip.addEventListener("click", function () { active = t; render(); });
+        tagsBox.appendChild(chip);
+      });
+      /* 文章列表 */
+      listBox.textContent = "";
+      var shown = items.filter(function (it) {
+        return active === "全部" || it.tags.indexOf(active) > -1;
+      });
+      if (!shown.length) {
+        listBox.appendChild(el("div", "sc-empty", active === "全部" ? "> 暂无信号记录_" : "> 该标签下暂无信号_"));
+        return;
+      }
+      shown.forEach(function (it) {
+        var a = el("a", "arch-item");
+        a.href = it.href;
+        a.appendChild(el("span", "arch-date", it.date));
+        a.appendChild(el("h3", null, it.title));
+        var wrap = el("span", "arch-tags-in");
+        it.tags.forEach(function (t) { wrap.appendChild(el("span", "tag", t)); });
+        a.appendChild(wrap);
+        listBox.appendChild(a);
+      });
+    }
+
+    fetch("index.html", { credentials: "same-origin" })
+      .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.text(); })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var cards = doc.querySelectorAll(".post-card:not(.placeholder)");
+        Array.prototype.forEach.call(cards, function (card) {
+          var href = card.getAttribute("href");
+          if (!href) return;
+          var dateEl = card.querySelector(".date");
+          var titleEl = card.querySelector("h3");
+          if (!titleEl) return;
+          var tags = [];
+          Array.prototype.forEach.call(card.querySelectorAll(".tag"), function (t) {
+            tags.push(t.textContent.trim());
+          });
+          items.push({
+            href: href,
+            date: dateEl ? dateEl.textContent.trim() : "----",
+            title: titleEl.textContent.trim(),
+            tags: tags
+          });
+        });
+        items.sort(function (a, b) { return b.date.localeCompare(a.date); });
+        render();
+      })
+      .catch(function () {
+        listBox.textContent = "";
+        listBox.appendChild(el("div", "sc-empty", "> 归档索引同步失败（请通过本地服务器或线上地址访问，不要直接双击打开本页）_"));
+      });
+  })();
+  </script>
+</body>
+</html>
