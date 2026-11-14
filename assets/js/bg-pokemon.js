@@ -71,6 +71,23 @@
   var extra = (W < 700 ? 4 : 10) - DEX.length;
   for (var k = 0; k < extra; k++) { spawn(DEX[Math.floor(Math.random() * DEX.length)]); }
 
+  /* ── 巨型背景宝可梦：超大水印，DeepSeek 式隐居背景中央 ──
+     每次刷新随机一位巨兽：吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙 */
+  var GIANTS = [321, 130, 382, 149];
+  var gdex = GIANTS[Math.floor(Math.random() * GIANTS.length)];
+  var whale = document.createElement("img");
+  var wi = 0;
+  whale.id = "pk-whale";
+  whale.alt = "";
+  whale.setAttribute("aria-hidden", "true");
+  whale.addEventListener("error", function () {
+    wi++;
+    if (wi < BASES.length) { whale.src = BASES[wi] + "other/official-artwork/" + gdex + ".png"; }
+    else if (whale.parentNode) { layer.removeChild(whale); }
+  });
+  whale.src = BASES[0] + "other/official-artwork/" + gdex + ".png";
+  layer.appendChild(whale);
+
   var last = Date.now();
   function tick() {
     var now = Date.now();
