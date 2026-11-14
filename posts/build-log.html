@@ -131,28 +131,14 @@
         <a href="../index.html">返回首页 ▸</a>
       </div>
 
-      <!-- ===== 评论区（giscus：评论公开显示，存于 GitHub Discussions） ===== -->
+      <!-- ===== 评论区（免登录，后端 Supabase） ===== -->
       <section class="comments-block">
         <div class="sec-head">
           <h2>评论</h2>
           <span class="mono-tag">COMMENTS</span>
           <span class="rule"></span>
         </div>
-        <script src="https://giscus.app/client.js"
-          data-repo="Barley111/Barley111.github.io"
-          data-repo-id="R_kgDOVtNPhg"
-          data-category="Announcements"
-          data-category-id="DIC_kwDOVtNPhs4DLDYs"
-          data-mapping="pathname"
-          data-strict="0"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="top"
-          data-theme="transparent_dark"
-          data-lang="zh-CN"
-          data-loading="lazy"
-          crossorigin="anonymous"
-          async></script>
+        <div data-signal-comments></div>
       </section>
     </article>
   </main>
@@ -165,5 +151,6 @@
   </footer>
 
   <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/comments.js"></script>
 </body>
 </html>

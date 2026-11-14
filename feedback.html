@@ -39,30 +39,16 @@
         </div>
       </div>
 
-      <p class="fb-note reveal">这里是公开留言板——所有人都能看到这里的留言。建议、报错、催更、唠嗑统统欢迎。发布评论需要登录 GitHub 账号（评论框里有登录按钮，点击即可）；没有账号的访客也欢迎随意浏览。</p>
+      <p class="fb-note reveal">这里是公开留言板——所有人都能看到这里的留言。建议、报错、催更、唠嗑统统欢迎。写下评论直接发送，无需注册、无需登录任何账号。</p>
 
-      <!-- ===== 公开留言板（giscus：评论存于 GitHub Discussions） ===== -->
+      <!-- ===== 公开留言板（免登录，后端 Supabase） ===== -->
       <section class="comments-block reveal">
         <div class="sec-head">
           <h2>留言板</h2>
           <span class="mono-tag">GUESTBOOK</span>
           <span class="rule"></span>
         </div>
-        <script src="https://giscus.app/client.js"
-          data-repo="Barley111/Barley111.github.io"
-          data-repo-id="R_kgDOVtNPhg"
-          data-category="Announcements"
-          data-category-id="DIC_kwDOVtNPhs4DLDYs"
-          data-mapping="pathname"
-          data-strict="0"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="top"
-          data-theme="transparent_dark"
-          data-lang="zh-CN"
-          data-loading="lazy"
-          crossorigin="anonymous"
-          async></script>
+        <div data-signal-comments></div>
       </section>
     </section>
   </main>
@@ -76,5 +62,6 @@
   </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/comments.js"></script>
 </body>
 </html>
