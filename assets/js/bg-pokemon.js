@@ -71,8 +71,9 @@
   var extra = (W < 700 ? 4 : 10) - DEX.length;
   for (var k = 0; k < extra; k++) { spawn(DEX[Math.floor(Math.random() * DEX.length)]); }
 
-  /* ── 巨型背景宝可梦：超大水印，DeepSeek 式隐居背景中央 ──
-     每次刷新随机一位巨兽：吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙 */
+  /* ── 巨型背景宝可梦：巨兽巡游（DeepSeek 式水印 × 深海游动）──
+     每次刷新随机一位巨兽：吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙，
+     以约 90 秒横穿全屏的速度巡游，伴随起伏与轻微俯仰 */
   var GIANTS = [321, 130, 382, 149];
   var gdex = GIANTS[Math.floor(Math.random() * GIANTS.length)];
   var whale = document.createElement("img");
@@ -87,6 +88,14 @@
   });
   whale.src = BASES[0] + "other/official-artwork/" + gdex + ".png";
   layer.appendChild(whale);
+
+  var whaleDir = Math.random() < 0.5 ? -1 : 1;
+  var whaleX = whaleDir === 1 ? -0.4 * W : W * 1.02;
+  var whaleBaseY = H * (0.32 + Math.random() * 0.18);
+  var whaleW = 0; /* 立绘加载完成后按 CSS 实际渲染宽度取值 */
+  whale.addEventListener("load", function () {
+    whaleW = parseFloat(getComputedStyle(whale).width) || W * 0.9;
+  });
 
   var last = Date.now();
   function tick() {
@@ -116,6 +125,25 @@
         " perspective(700px) rotateY(" + wob.toFixed(1) + "deg)" +
         " scaleX(" + face + ")";
     }
+
+    /* 巨兽巡游：缓慢横穿 + 深潜起伏 + 俯仰 */
+    if (whaleW > 0) {
+      whaleX += whaleDir * (W / 55) * dt;
+      var wy = whaleBaseY + Math.sin(t * 0.14) * (H * 0.05);
+      if (whaleDir === 1 && whaleX > W + whaleW * 0.55) {
+        whaleX = -whaleW * 0.55;
+        whaleBaseY = H * (0.28 + Math.random() * 0.3);
+      }
+      if (whaleDir === -1 && whaleX < -whaleW * 0.55) {
+        whaleX = W * 1.02;
+        whaleBaseY = H * (0.28 + Math.random() * 0.3);
+      }
+      var wFace = whaleDir === 1 ? -1 : 1; /* 官方立绘默认朝左，向右游需镜像 */
+      var wTilt = Math.cos(t * 0.14) * 3.5 * wFace;
+      whale.style.transform =
+        "translate3d(" + whaleX.toFixed(1) + "px," + wy.toFixed(1) + "px,0)" +
+        " scaleX(" + wFace + ") rotate(" + wTilt.toFixed(2) + "deg)";
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -123,5 +151,6 @@
   window.addEventListener("resize", function () {
     W = window.innerWidth;
     H = window.innerHeight;
+    if (whaleW > 0) { whaleW = parseFloat(getComputedStyle(whale).width) || whaleW; }
   });
 })();
