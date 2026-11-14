@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="麦茶的游戏档案 —— 宝可梦队伍、罗德岛干员编队与各个世界的存档展示。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>游戏档案 // GAME.DATA · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html"><span>首页 INDEX</span></a>
+        <a href="archive.html"><span>归档 ARCHIVE</span></a>
+        <a href="about.html"><span>关于 ABOUT</span></a>
+        <a href="feedback.html"><span>留言 MAIL</span></a>
+        <a href="links.html"><span>友链 LINKS</span></a>
+        <a class="active" href="games.html"><span>游戏 GAME</span></a>
+        <a href="https://github.com/Barley111" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="article wrap">
+      <div class="article-head">
+        <div class="crumbs"><a href="index.html">HOME</a> / GAME.DATA // 游戏档案</div>
+        <h1>游戏档案</h1>
+        <div class="article-meta">
+          <span>SAVE.DATA</span>
+          <span class="date">CLOUD.SYNCED // 各世界存档一览</span>
+        </div>
+      </div>
+
+      <p class="fb-note reveal">这里是麦茶在各个世界里留下的足迹：一起走过区域的伙伴、罗德岛的干员编队，以及其他世界的存档数据。</p>
+
+      <!-- ══════════════════════════════════════════════════════
+           ★ 数据填写区（只改这里！改文字即可，不用动其他地方）★
+           改完保存 → 双击 发布博客.bat 上线。
+           ══════════════════════════════════════════════════════ -->
+      <script>
+      /* ── ① 宝可梦队伍（最多 6 只）──
+         name:   宝可梦名（中文）
+         dex:    全国图鉴编号（纯数字，页面会自动抓官方立绘；不知道就填 0）
+         level:  等级（数字）
+         nickname: 你给它起的昵称，没有就留空 ""
+         note:   一句话介绍（它和你 story）
+         types:  属性，1~2 个，可选值：一般/火/水/草/电/冰/格斗/毒/地面/飞行/超能力/虫/岩石/幽灵/龙/恶/钢/妖精  */
+      var POKEMON = [
+        { name: "喷火龙", dex: 6,    level: 100, nickname: "", note: "示例数据·改我：从御三家一路烧上冠军之座的老伙伴", types: ["火", "飞行"] },
+        { name: "皮卡丘", dex: 25,   level: 88,  nickname: "", note: "示例数据·改我：拒绝进化的倔强电气鼠", types: ["电"] },
+        { name: "卡比兽", dex: 143,  level: 75,  nickname: "", note: "示例数据·改我：队伍的饭桶兼后排堡垒", types: ["一般"] },
+        { name: "耿鬼",   dex: 94,   level: 82,  nickname: "", note: "示例数据·改我：半夜偷笑的影子", types: ["幽灵", "毒"] },
+        { name: "快龙",   dex: 149,  level: 90,  nickname: "", note: "示例数据·改我：十六小时能绕地球一圈的通勤工具", types: ["龙", "飞行"] },
+        { name: "水箭龟", dex: 9,    level: 80,  nickname: "", note: "示例数据·改我：炮台，字面意义上的", types: ["水"] }
+      ];
+
+      /* ── ② 明日方舟干员编队 ──
+         name: 干员名   elite: 精英化(0/1/2)   level: 等级(数字)
+         cls:  职业（先锋/近卫/重装/狙击/术师/医疗/辅助/特种）
+         pot:  潜能(1~6，没有就填 1)   avatar: 头像图片链接(没有就留空 "")
+         note: 一句话（干员和你的 story）*/
+      var ARKNIGHTS = [
+        { name: "能天使", elite: 2, level: 90, cls: "狙击", pot: 5, avatar: "", note: "示例数据·改我：德克萨斯，做得到吗？" },
+        { name: "银灰",   elite: 2, level: 90, cls: "近卫", pot: 1, avatar: "", note: "示例数据·改我：真银斩，清屏键" },
+        { name: "凯尔希", elite: 2, level: 90, cls: "医疗", pot: 1, avatar: "", note: "示例数据·改我：Mon3tr，上！」" },
+        { name: "陈",     elite: 2, level: 85, cls: "近卫", pot: 1, avatar: "", note: "示例数据·改我：拔刀！赤霄一刀流" }
+      ];
+
+      /* ── ③ 其他世界档案（塞尔达 / 阴阳师 / 任意游戏，数量随意）──
+         name: 游戏/世界名   stat: 一个最想炫耀的数据（时长/进度/稀有度…）
+         note: 一句话存档日记   icon: 一个代表字或 emoji */
+      var OTHER_GAMES = [
+        { name: "塞尔达传说：旷野之息", stat: "129 小时", icon: "剑", note: "示例数据·改我：海拉鲁勇者的第 129 小时，还在给呀哈哈摘果子" },
+        { name: "阴阳师",               stat: "SSR × 12",  icon: "阴阳", note: "示例数据·改我：非酋改命进行中，下一个六星还没排上日程" }
+      ];
+      </script>
+      <!-- ═══════════════ 数据填写区结束 ═══════════════ -->
+
+      <!-- ① 宝可梦队伍 -->
+      <section class="comments-block reveal" style="margin-top: 30px;">
+        <div class="sec-head">
+          <h2>宝可梦队伍</h2>
+          <span class="mono-tag">POKEMON.TEAM</span>
+          <span class="rule"></span>
+        </div>
+        <div class="pk-grid" id="pkGrid"></div>
+      </section>
+
+      <!-- ② 明日方舟 -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>罗德岛干员编队</h2>
+          <span class="mono-tag">ARKNIGHTS.OPS</span>
+          <span class="rule"></span>
+        </div>
+        <div class="ak-grid" id="akGrid"></div>
+      </section>
+
+      <!-- ③ 其他世界 -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>其他世界档案</h2>
+          <span class="mono-tag">OTHER.WORLDS</span>
+          <span class="rule"></span>
+        </div>
+        <div class="og-grid" id="ogGrid"></div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    "use strict";
+    /* 注意：本渲染脚本必须排在 assets/js/main.js 之前执行，让动效观察器能看到生成的卡片 */
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== null) e.textContent = text;
+      return e;
+    }
+
+    /* 宝可梦属性配色 */
+    var TYPE_COLORS = {
+      "一般": "#9299a1", "火": "#e56c3c", "水": "#3b8fd4", "草": "#5cb85c",
+      "电": "#f0c75e", "冰": "#6fd6e8", "格斗": "#d6715a", "毒": "#a862c0",
+      "地面": "#c9a15f", "飞行": "#7fa8e8", "超能力": "#e8709a", "虫": "#8fbf3f",
+      "岩石": "#a38c5d", "幽灵": "#6a5aa8", "龙": "#5a6fd6", "恶": "#5a5a6e",
+      "钢": "#7f9aa8", "妖精": "#eb9bd0"
+    };
+    function typeTag(t) {
+      var s = el("span", "type-tag", t);
+      s.style.background = (TYPE_COLORS[t] || "#74848a") + "33";
+      s.style.borderColor = TYPE_COLORS[t] || "#74848a";
+      s.style.color = TYPE_COLORS[t] || "#c3d0cd";
+      return s;
+    }
+
+    /* ── ① 宝可梦 ── */
+    /* 立绘图源镜像链：主源国内可达，逐级回退，全失败则显示文字占位 */
+    var SPRITE_BASES = [
+      "https://testingcf.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/",
+      "https://fastly.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/",
+      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/"
+    ];
+    var pkGrid = document.getElementById("pkGrid");
+    (window.POKEMON || []).forEach(function (p) {
+      var card = el("div", "pk-card");
+      var imgBox = el("div", "pk-art");
+      if (p.dex > 0) {
+        var img = document.createElement("img");
+        var srcIdx = 0;
+        img.alt = p.name;
+        img.loading = "lazy";
+        img.src = SPRITE_BASES[srcIdx] + p.dex + ".png";
+        img.addEventListener("error", function () {
+          srcIdx++;
+          if (srcIdx < SPRITE_BASES.length) {
+            img.src = SPRITE_BASES[srcIdx] + p.dex + ".png";
+          } else {
+            imgBox.textContent = p.name.charAt(0);
+          }
+        });
+        imgBox.appendChild(img);
+      } else {
+        imgBox.textContent = p.name.charAt(0);
+      }
+      card.appendChild(imgBox);
+
+      var info = el("div", "pk-info");
+      var nameRow = el("div", "pk-name-row");
+      nameRow.appendChild(el("span", "pk-name", p.nickname ? p.nickname : p.name));
+      if (p.nickname) nameRow.appendChild(el("span", "pk-realname", p.name));
+      nameRow.appendChild(el("span", "pk-level", "Lv." + p.level));
+      info.appendChild(nameRow);
+      var typeRow = el("div", "pk-types");
+      (p.types || []).forEach(function (t) { typeRow.appendChild(typeTag(t)); });
+      info.appendChild(typeRow);
+      if (p.note) info.appendChild(el("p", "pk-note", p.note));
+      card.appendChild(info);
+      pkGrid.appendChild(card);
+    });
+    if (!pkGrid.children.length) pkGrid.appendChild(el("div", "sc-empty", "> 队伍数据为空——去页面顶部的「数据填写区」添加伙伴_"));
+
+    /* ── ② 明日方舟 ── */
+    var AK_COLORS = { "先锋": "#8fbf3f", "近卫": "#e56c3c", "重装": "#5a6fd6", "狙击": "#f0c75e", "术师": "#a862c0", "医疗": "#5cb85c", "辅助": "#eb9bd0", "特种": "#7fa8e8" };
+    var akGrid = document.getElementById("akGrid");
+    (window.ARKNIGHTS || []).forEach(function (o) {
+      var card = el("div", "ak-card");
+      var head = el("div", "ak-head");
+      if (o.avatar) {
+        var img = document.createElement("img");
+        img.src = o.avatar; img.alt = o.name; img.loading = "lazy";
+        img.className = "ak-avatar";
+        img.addEventListener("error", function () { head.removeChild(img); });
+        head.appendChild(img);
+      } else {
+        head.appendChild(el("div", "ak-avatar ak-avatar-text", o.name.charAt(0)));
+      }
+      var nameBox = el("div", "ak-namebox");
+      nameBox.appendChild(el("span", "ak-name", o.name));
+      var clsTag = el("span", "type-tag ak-cls", o.cls);
+      clsTag.style.background = (AK_COLORS[o.cls] || "#74848a") + "33";
+      clsTag.style.borderColor = AK_COLORS[o.cls] || "#74848a";
+      clsTag.style.color = AK_COLORS[o.cls] || "#c3d0cd";
+      nameBox.appendChild(clsTag);
+      head.appendChild(nameBox);
+      head.appendChild(el("span", "ak-elite", "E" + o.elite + " Lv." + o.level));
+      card.appendChild(head);
+      var meta = el("div", "ak-meta");
+      meta.appendChild(el("span", "ak-pot", "潜能 " + o.pot));
+      card.appendChild(meta);
+      if (o.note) card.appendChild(el("p", "ak-note", o.note));
+      akGrid.appendChild(card);
+    });
+    if (!akGrid.children.length) akGrid.appendChild(el("div", "sc-empty", "> 干员编队为空——去「数据填写区」招募干员_"));
+
+    /* ── ③ 其他世界 ── */
+    var ogGrid = document.getElementById("ogGrid");
+    (window.OTHER_GAMES || []).forEach(function (g) {
+      var card = el("div", "og-card");
+      var head = el("div", "og-head");
+      head.appendChild(el("div", "og-icon", g.icon || "🎮"));
+      head.appendChild(el("h3", "og-name", g.name));
+      head.appendChild(el("span", "og-stat", g.stat));
+      card.appendChild(head);
+      if (g.note) card.appendChild(el("p", "og-note", g.note));
+      ogGrid.appendChild(card);
+    });
+    if (!ogGrid.children.length) ogGrid.appendChild(el("div", "sc-empty", "> 暂无其他世界存档_"));
+  })();
+  </script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
