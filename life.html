@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="麦茶的生活区 —— 日常记录、照片与视频时间轴。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>生活区 // LIFE.LOG · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html"><span>首页 INDEX</span></a>
+        <a href="archive.html"><span>归档 ARCHIVE</span></a>
+        <a href="schedule.html"><span>日程 SCHEDULE</span></a>
+        <a class="active" href="life.html"><span>生活 LIFE</span></a>
+        <a href="about.html"><span>关于 ABOUT</span></a>
+        <a href="feedback.html"><span>留言 MAIL</span></a>
+        <a href="links.html"><span>友链 LINKS</span></a>
+        <a href="games.html"><span>游戏 GAME</span></a>
+        <a href="https://github.com/Barley111" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="article narrow">
+      <div class="article-head">
+        <div class="crumbs"><a href="index.html">HOME</a> / LIFE.LOG // 生活区</div>
+        <h1>生活区</h1>
+        <div class="article-meta">
+          <span>LIFE.LOG</span>
+          <span class="date">DAILY // 日常的信号碎片</span>
+        </div>
+      </div>
+
+      <p class="fb-note reveal">不正式、不排版、想到什么记什么——日常的碎片都在这条时间轴上。照片放本地文件夹、视频传 B 站拿 BV 号，都能挂进来。</p>
+
+      <!-- 生活时间轴 -->
+      <section class="comments-block reveal" style="margin-top: 26px;">
+        <div class="sec-head">
+          <h2>生活时间轴</h2>
+          <span class="mono-tag">TIMELINE</span>
+          <span class="rule"></span>
+        </div>
+        <div id="lifeTimeline"></div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════════
+       ★ 数据填写区（只改这里！改文字即可）★
+       照片怎么放：把图片文件拖进 assets/media/ 文件夹（没有就新建），
+       然后填相对路径，如 "assets/media/2026-11-15.jpg"（可放多张）。
+       视频怎么放：上传 B 站后，把 BV 号填进 video（如 "BV1Qo4y1U7yN"）。
+       ══════════════════════════════════════════════════════ -->
+  <script>
+  /* ── 生活记录（新的写在最上面）──
+     date: 日期（YYYY-MM-DD）
+     title: 标题（一句话）
+     mood: 心情徽章（快乐/充实/摸鱼/丧/激动/平静，也可自己写词）
+     body: 正文（\n 表示换行）
+     imgs: 照片路径数组（可空 []）
+     video: B站 BV 号（可空 ""，页面自动嵌播放器） */
+  var LIFE_POSTS = [
+    {
+      date: "2026-11-15",
+      title: "信号站全面升级完成",
+      mood: "激动",
+      body: "两天时间：上线、评论、归档、游戏档案、日程系统，还有一缸会动的宝可梦。\n接下来该好好备考了……写完这条就去刷行测。",
+      imgs: [],
+      video: ""
+    },
+    {
+      date: "2026-11-14",
+      title: "深夜看鲸鱼混剪",
+      mood: "平静",
+      body: "示例数据·改我：看到了一个鲸鱼粒子视频，于是半夜爬起来给博客也安排了一头。\n大海深处真的有东西在游。",
+      imgs: [],
+      video: "BV1Qo4y1U7yN"
+    }
+  ];
+  </script>
+  <!-- ═══════════════ 数据填写区结束 ═══════════════ -->
+
+  <script>
+  (function () {
+    "use strict";
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== null) e.textContent = text;
+      return e;
+    }
+
+    var MOOD_COLORS = {
+      "快乐": "#f0c75e", "充实": "#5cb85c", "激动": "#e56c3c",
+      "摸鱼": "#74848a", "丧": "#6a5aa8", "平静": "#39c5bb"
+    };
+    function moodEl(m) {
+      var c = MOOD_COLORS[m] || "#74848a";
+      var s = el("span", "life-mood", (MOOD_COLORS[m] ? "" : "🌀 ") + (m || "日常"));
+      s.style.color = c;
+      s.style.borderColor = c;
+      s.style.background = c + "2b";
+      return s;
+    }
+
+    var box = document.getElementById("lifeTimeline");
+    (window.LIFE_POSTS || []).forEach(function (post) {
+      var node = el("div", "life-node");
+
+      var dotRow = el("div", "life-dotrow");
+      dotRow.appendChild(el("span", "life-dot"));
+      var head = el("div", "life-head");
+      head.appendChild(el("span", "life-date", post.date || ""));
+      head.appendChild(moodEl(post.mood));
+      dotRow.appendChild(head);
+      node.appendChild(dotRow);
+
+      var card = el("div", "life-card");
+      card.appendChild(el("h3", "life-title", post.title || ""));
+      if (post.body) {
+        var body = el("div", "life-body");
+        String(post.body).split("\n").forEach(function (line, i2, arr2) {
+          body.appendChild(document.createTextNode(line));
+          if (i2 < arr2.length - 1) { body.appendChild(el("br")); }
+        });
+        card.appendChild(body);
+      }
+      if (post.imgs && post.imgs.length) {
+        var imgs = el("div", "life-imgs");
+        post.imgs.forEach(function (src) {
+          var a = el("a", "life-imgbox");
+          a.href = src;
+          a.target = "_blank";
+          a.rel = "noopener";
+          var im = document.createElement("img");
+          im.src = src;
+          im.loading = "lazy";
+          im.alt = "生活照片";
+          im.addEventListener("error", function () {
+            a.classList.add("broken");
+            a.textContent = "照片加载失败：" + src;
+          });
+          a.appendChild(im);
+          imgs.appendChild(a);
+        });
+        card.appendChild(imgs);
+      }
+      if (post.video && /^BV[0-9A-Za-z]+$/.test(post.video)) {
+        var vwrap = el("div", "life-video");
+        var iframe = document.createElement("iframe");
+        iframe.dataset.bvid = post.video; /* src 由 IntersectionObserver 滚动到位后再加载 */
+        iframe.setAttribute("scrolling", "no");
+        iframe.setAttribute("frameborder", "no");
+        iframe.allowFullscreen = true;
+        vwrap.appendChild(iframe);
+        card.appendChild(vwrap);
+      }
+      node.appendChild(card);
+      box.appendChild(node);
+    });
+    if (!box.children.length) { box.appendChild(el("div", "sc-empty", "> 时间轴空空如也——去「数据填写区」记录第一条_")); }
+
+    /* B 站播放器惰性加载：滚动到附近才真正拉起 iframe，不拖慢页面 */
+    var vio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          var fr = en.target.querySelector("iframe");
+          if (fr && !fr.src && fr.dataset.bvid) {
+            fr.src = "https://player.bilibili.com/player.html?bvid=" + fr.dataset.bvid + "&autoplay=0&danmaku=0&high_quality=1";
+          }
+          vio.unobserve(en.target);
+        }
+      });
+    }, { rootMargin: "300px" });
+    Array.prototype.forEach.call(document.querySelectorAll(".life-video"), function (v) {
+      vio.observe(v);
+    });
+  })();
+  </script>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/bg-pokemon.js"></script>
+</body>
+</html>
