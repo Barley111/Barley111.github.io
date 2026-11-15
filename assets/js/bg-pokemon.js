@@ -105,6 +105,7 @@
 
   var gParts = [];      /* 粒子数组：tx/ty 相对成形原点的目标位，颜色，散布参数 */
   var gFormW = 0;
+  var gFormH = 0;
   var gPhase = "idle";  /* idle → loading → assemble → swim → dissolve → idle */
   var gPhaseT = 0;
   var gX = 0;           /* 成形原点的屏幕位置（随游动推进） */
@@ -170,8 +171,9 @@
           if (data[idx + 3] < 90) { continue; }
           var br = (data[idx] * 0.3 + data[idx + 1] * 0.55 + data[idx + 2] * 0.15) / 255;
           gParts.push({
-            tx: x - w / 2,
-            ty: y - h / 2,
+            /* 采样抖动：打破规则网格，得到有机的半调点云 */
+            tx: x - w / 2 + (Math.random() - 0.5) * spacing * 0.75,
+            ty: y - h / 2 + (Math.random() - 0.5) * spacing * 0.75,
             r: data[idx],
             g: data[idx + 1],
             b: data[idx + 2],
@@ -182,7 +184,10 @@
             dvx: (Math.random() - 0.5) * 220,
             dvy: (Math.random() - 0.5) * 220 - 60,
             wob: Math.random() * Math.PI * 2,
-            z: Math.random()
+            z: Math.random(),
+            tf: 0.8 + Math.random() * 1.8,
+            tw: Math.random() * Math.PI * 2,
+            fall: 0.68 + Math.random() * 0.34
           });
         }
       }
@@ -191,6 +196,7 @@
     }
     dbg.parts = gParts.length;
     gFormW = w;
+    gFormH = h;
     return gParts.length > 60;
   }
 
@@ -261,31 +267,42 @@
       var fluke = f * Math.sin(t * 1.9 - q.tx * 0.010) * 6; /* 尾鳍垂直击水 */
       var flap = Math.sin(t * 5.2) * (q.ty < 0 ? 9 : 5) * (0.4 + q.z * 0.6); /* 翅膀/背脊扇动：上半身更欢 */
       var px, py, al, dsz;
+      /* 自然感：个体独立闪烁（萤火虫式） */
+      var twk = 0.72 + 0.28 * Math.sin(t * q.tf + q.tw);
+      /* 边缘剥离：轮廓外围的粒子随机明灭脱落（像视频里鲸鱼边缘不断掉渣） */
+      var exN = Math.abs(q.tx) / (gFormW * 0.5);
+      var eyN = Math.abs(q.ty) / Math.max(1, gFormH * 0.5);
+      var edgeN = Math.max(exN, eyN);
       /* 裸眼 3D：按粒子深度 z 施加视差偏移，近处动得多、远处动得少 */
       if (gPhase === "assemble") {
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
-        px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z + Math.sin(t * 6.3 + q.wob * 5) * 1.3;
+        px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z;
         py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + flap + camY * q.z * 0.6;
-        al = (0.15 + q.br * 0.5) * e * (0.55 + q.z * 0.45);
+        al = (0.15 + q.br * 0.5) * e;
       } else if (gPhase === "swim") {
-        px = gX + q.tx * wFace + sway + camX * q.z + Math.sin(t * 6.3 + q.wob * 5) * 1.3;
+        px = gX + q.tx * wFace + sway + camX * q.z;
         py = gBaseY + q.ty + wob + fluke + flap + camY * q.z * 0.6;
-        al = (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45);
+        al = 0.15 + q.br * 0.5;
       } else { /* dissolve */
         px = gX + q.tx * wFace + sway + q.dvx * gPhaseT + camX * q.z;
         py = gBaseY + q.ty + wob + fluke + flap + q.dvy * gPhaseT + camY * q.z * 0.6;
-        al = Math.max(0, (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45) * (1 - gPhaseT / 2.0));
+        al = (0.15 + q.br * 0.5) * (1 - gPhaseT / 2.0);
       }
+      al *= twk * (0.55 + q.z * 0.45);
+      if (edgeN > q.fall) { al *= 0.25 + 0.75 * Math.abs(Math.sin(t * 2.3 + q.wob)); }
       if (al <= 0.02) { continue; }
-      dsz = 1.5 + q.z * 1.5; /* 近处的粒子更大 */
+      /* 半调网点：亮处粒子大而密，暗处小而疏 */
+      dsz = (1.0 + q.br * 1.8) * (0.7 + q.z * 0.8);
       /* 立绘原色 × 青色全息色调混合 */
       gctx.globalAlpha = al;
       gctx.fillStyle = "rgb(" +
         Math.round(q.r * 0.4 + 57 * 0.6) + "," +
         Math.round(q.g * 0.4 + 197 * 0.6) + "," +
         Math.round(q.b * 0.4 + 187 * 0.6) + ")";
-      gctx.fillRect(px, py, dsz, dsz);
+      gctx.beginPath();
+      gctx.arc(px, py, dsz, 0, Math.PI * 2);
+      gctx.fill();
     }
     gctx.restore();
     gctx.globalAlpha = 1;
