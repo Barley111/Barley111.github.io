@@ -49,20 +49,40 @@
            改完保存 → 双击 发布博客.bat 上线。
            ══════════════════════════════════════════════════════ -->
       <script>
-      /* ── ① 宝可梦队伍（最多 6 只）──
-         name:   宝可梦名（中文）
-         dex:    全国图鉴编号（纯数字，页面会自动抓官方立绘；不知道就填 0）
-         level:  等级（数字）
-         nickname: 你给它起的昵称，没有就留空 ""
-         note:   一句话介绍（它和你 story）
-         types:  属性，1~2 个，可选值：一般/火/水/草/电/冰/格斗/毒/地面/飞行/超能力/虫/岩石/幽灵/龙/恶/钢/妖精  */
-      var POKEMON = [
-        { name: "喷火龙", dex: 6,    level: 100, nickname: "", note: "示例数据·改我：从御三家一路烧上冠军之座的老伙伴", types: ["火", "飞行"] },
-        { name: "皮卡丘", dex: 25,   level: 88,  nickname: "", note: "示例数据·改我：拒绝进化的倔强电气鼠", types: ["电"] },
-        { name: "卡比兽", dex: 143,  level: 75,  nickname: "", note: "示例数据·改我：队伍的饭桶兼后排堡垒", types: ["一般"] },
-        { name: "耿鬼",   dex: 94,   level: 82,  nickname: "", note: "示例数据·改我：半夜偷笑的影子", types: ["幽灵", "毒"] },
-        { name: "快龙",   dex: 149,  level: 90,  nickname: "", note: "示例数据·改我：十六小时能绕地球一圈的通勤工具", types: ["龙", "飞行"] },
-        { name: "水箭龟", dex: 9,    level: 80,  nickname: "", note: "示例数据·改我：炮台，字面意义上的", types: ["水"] }
+      /* ── ① 宝可梦队伍（按世代/游戏分组，每组 1~6 只，可放任意多组）──
+         title:  这支队伍的名字（如：冠军队伍 · 朱）
+         gen:    世代/游戏标注（如：第九世代 · 朱/紫）
+         badge:  徽章文字（如：冠军 / 毕业 / 在训；可空 = 不显示。「冠军」会显示金色徽章）
+         note:   这支队伍的故事（可空）
+         members: 队员列表，每只：
+           name: 宝可梦名（中文）
+           dex:  全国图鉴编号（纯数字，页面自动抓官方立绘；不知道填 0）
+           level: 等级（数字）
+           nickname: 昵称，没有就留空 ""
+           note: 一句话介绍（可空）
+           types: 属性 1~2 个：一般/火/水/草/电/冰/格斗/毒/地面/飞行/超能力/虫/岩石/幽灵/龙/恶/钢/妖精 */
+      var POKEMON_TEAMS = [
+        {
+          title: "冠军队伍 · 朱",
+          gen: "第九世代 · 朱/紫",
+          badge: "冠军",
+          note: "示例数据·改我：打败玛俐的那一夜，它们就是我的全部底牌。",
+          members: [
+            { name: "喷火龙", dex: 6,   level: 100, nickname: "", note: "示例·从御三家一路烧上冠军之座", types: ["火", "飞行"] },
+            { name: "皮卡丘", dex: 25,  level: 88,  nickname: "", note: "示例·拒绝进化的倔强电气鼠", types: ["电"] },
+            { name: "卡比兽", dex: 143, level: 75,  nickname: "", note: "示例·饭桶兼后排堡垒", types: ["一般"] }
+          ]
+        },
+        {
+          title: "白金小队 · 钻石",
+          gen: "第四世代 · 钻石/珍珠",
+          badge: "毕业",
+          note: "示例数据·改我：和它们并肩作战的少年时代。",
+          members: [
+            { name: "烈咬陆鲨", dex: 445, level: 92, nickname: "", note: "示例·四天王的噩梦", types: ["龙", "地面"] },
+            { name: "路卡利欧", dex: 448, level: 85, nickname: "", note: "示例·波导的搭档", types: ["格斗", "钢"] }
+          ]
+        }
       ];
 
       /* ── ② 明日方舟干员编队 ──
@@ -89,6 +109,7 @@
          name: 卡组名   format: 赛制（标准赛/扩展赛/开放赛，可空）   record: 战绩（可空）
          note: 卡组思路一句话（可空）
          cards: 卡牌列表 —— t 分类（P=宝可梦，T=训练家，E=能量），n 卡名，c 数量，note 备注（可空）
+         matches: 比赛记录（可空，可多条）—— date 日期, name 比赛名, result 成绩, note 感想（可空）
          页面会自动分类排版并合计张数：凑满 60 显示绿色，差几张照实标出 */
       var PTCG_DECKS = [
         {
@@ -105,6 +126,10 @@
             { t: "T", n: "莉莉艾", c: 2, note: "抽牌" },
             { t: "E", n: "火能量", c: 14 },
             { t: "E", n: "双重涡轮能量", c: 4 }
+          ],
+          matches: [
+            { date: "2026-10-12", name: "示例比赛 · 城市赛秋季轮", result: "前八（5-2）", note: "示例数据·改我：输给了快龙卡组，学到了。" },
+            { date: "2026-11-02", name: "示例比赛 · 卡店周常赛", result: "亚军（4-1）", note: "示例数据·改我：决胜局细节没做好。" }
           ]
         }
       ];
@@ -118,7 +143,7 @@
           <span class="mono-tag">POKEMON.TEAM</span>
           <span class="rule"></span>
         </div>
-        <div class="pk-grid" id="pkGrid"></div>
+        <div id="pkTeams"></div>
       </section>
 
       <!-- ② 明日方舟 -->
@@ -188,15 +213,15 @@
       return s;
     }
 
-    /* ── ① 宝可梦 ── */
+    /* ── ① 宝可梦队伍（按世代分组） ── */
     /* 立绘图源镜像链：主源国内可达，逐级回退，全失败则显示文字占位 */
     var SPRITE_BASES = [
       "https://testingcf.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/",
       "https://fastly.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/other/official-artwork/",
       "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/"
     ];
-    var pkGrid = document.getElementById("pkGrid");
-    (window.POKEMON || []).forEach(function (p) {
+    var pkTeams = document.getElementById("pkTeams");
+    function pokemonCard(p) {
       var card = el("div", "pk-card");
       var imgBox = el("div", "pk-art");
       if (p.dex > 0) {
@@ -230,9 +255,27 @@
       info.appendChild(typeRow);
       if (p.note) info.appendChild(el("p", "pk-note", p.note));
       card.appendChild(info);
-      pkGrid.appendChild(card);
+      return card;
+    }
+    (window.POKEMON_TEAMS || []).forEach(function (team) {
+      var block = el("div", "team-block");
+      var head = el("div", "team-head");
+      var tinfo = el("div", "team-tinfo");
+      tinfo.appendChild(el("span", "team-title", team.title || "未命名队伍"));
+      if (team.gen) { tinfo.appendChild(el("span", "team-gen", team.gen)); }
+      head.appendChild(tinfo);
+      if (team.badge) {
+        head.appendChild(el("span", "team-badge" + (team.badge.indexOf("冠军") > -1 ? " gold" : ""), "★ " + team.badge));
+      }
+      block.appendChild(head);
+      if (team.note) { block.appendChild(el("p", "team-note", team.note)); }
+      var grid = el("div", "pk-grid");
+      (team.members || []).forEach(function (p) { grid.appendChild(pokemonCard(p)); });
+      if (!grid.children.length) { grid.appendChild(el("div", "sc-empty", "> 这支队伍还没有成员_")); }
+      block.appendChild(grid);
+      pkTeams.appendChild(block);
     });
-    if (!pkGrid.children.length) pkGrid.appendChild(el("div", "sc-empty", "> 队伍数据为空——去页面顶部的「数据填写区」添加伙伴_"));
+    if (!pkTeams.children.length) pkTeams.appendChild(el("div", "sc-empty", "> 队伍数据为空——去页面顶部的「数据填写区」添加伙伴_"));
 
     /* ── ② 明日方舟 ── */
     var AK_COLORS = { "先锋": "#8fbf3f", "近卫": "#e56c3c", "重装": "#5a6fd6", "狙击": "#f0c75e", "术师": "#a862c0", "医疗": "#5cb85c", "辅助": "#eb9bd0", "特种": "#7fa8e8" };
@@ -313,6 +356,21 @@
         cols.appendChild(col);
       });
       panel.appendChild(cols);
+      if (d.matches && d.matches.length) {
+        var mWrap = el("div", "deck-matches");
+        mWrap.appendChild(el("h4", null, "比赛记录 TOURNAMENT.LOG"));
+        var ml = el("ul", "match-list");
+        d.matches.forEach(function (m) {
+          var li = el("li", "match-row");
+          li.appendChild(el("span", "match-date", m.date || "----"));
+          li.appendChild(el("span", "match-name", m.name || ""));
+          li.appendChild(el("span", "match-result", m.result || ""));
+          if (m.note) { li.appendChild(el("span", "match-note", " · " + m.note)); }
+          ml.appendChild(li);
+        });
+        mWrap.appendChild(ml);
+        panel.appendChild(mWrap);
+      }
       deckGrid.appendChild(panel);
     });
     if (!deckGrid.children.length) deckGrid.appendChild(el("div", "sc-empty", "> 卡组数据为空——去「数据填写区」添加_"));

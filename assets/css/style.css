@@ -778,6 +778,24 @@ code, pre { font-family: var(--mono); }
 .deck-cnt { font-family: var(--mono); font-size: 12px; color: var(--teal); min-width: 26px; flex-shrink: 0; text-align: right; }
 .deck-note { font-size: 11.5px; color: var(--text-dim); }
 
+/* ---------- v1.14 队伍世代分组 + PTCG 比赛记录 ---------- */
+.team-block { margin-bottom: 34px; }
+.team-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.team-tinfo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.team-title { font-size: 16.5px; font-weight: 700; color: var(--text-bright); }
+.team-gen { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.12em; color: var(--text-dim); border: 1px solid var(--line-bright); padding: 2px 10px; clip-path: var(--clip-corner-sm); }
+.team-badge { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--teal); border: 1px solid var(--teal-soft); background: var(--teal-faint); padding: 3px 12px; clip-path: var(--clip-corner-sm); }
+.team-badge.gold { color: #f0c75e; border-color: rgba(240, 199, 94, 0.5); background: rgba(240, 199, 94, 0.12); }
+.team-note { font-size: 12.5px; color: var(--text-dim); line-height: 1.7; margin-bottom: 14px; }
+.deck-matches { margin-top: 16px; }
+.deck-matches h4 { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em; color: var(--text-dim); margin-bottom: 8px; }
+.match-list { list-style: none; display: grid; gap: 6px; }
+.match-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--text); border-top: 1px dashed var(--line); padding: 6px 0; }
+.match-date { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
+.match-name { font-weight: 600; color: var(--text-bright); }
+.match-result { font-family: var(--mono); font-size: 12px; color: var(--teal); }
+.match-note { font-size: 11.5px; color: var(--text-dim); }
+
 /* ---------- v1.6 背景信号幽灵（游动的全息宝可梦） ---------- */
 #pk-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 #pk-bg img {
