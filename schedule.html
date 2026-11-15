@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="信号站日程安排 —— 倒计时、月历与全部日程一览。">
+  <meta name="theme-color" content="#0a0e13">
+  <title>日程安排 // SCHEDULE · 信号站 SIGNAL.BASE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0e13'/%3E%3Cpath d='M16 5 L27 25 L5 25 Z' fill='none' stroke='%2339c5bb' stroke-width='2'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%2339c5bb'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===== 顶部导航 ===== -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">信号站<small>SIGNAL.BASE</small></span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html"><span>首页 INDEX</span></a>
+        <a href="archive.html"><span>归档 ARCHIVE</span></a>
+        <a class="active" href="schedule.html"><span>日程 SCHEDULE</span></a>
+        <a href="about.html"><span>关于 ABOUT</span></a>
+        <a href="feedback.html"><span>留言 MAIL</span></a>
+        <a href="links.html"><span>友链 LINKS</span></a>
+        <a href="games.html"><span>游戏 GAME</span></a>
+        <a href="https://github.com/Barley111" target="_blank" rel="noopener"><span>GITHUB ↗</span></a>
+      </nav>
+      <div class="nav-status"><span class="dot"></span>ONLINE</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="article narrow">
+      <div class="article-head">
+        <div class="crumbs"><a href="index.html">HOME</a> / SCHEDULE // 日程安排</div>
+        <h1>日程安排</h1>
+        <div class="article-meta">
+          <span>SCHEDULE.DATA</span>
+          <span class="date">LIVE // 自动倒计时</span>
+        </div>
+      </div>
+
+      <p class="fb-note reveal">这里的倒计时和月历都是自动计算的——在页面顶部「数据填写区」改日程文字，剩余天数实时更新。</p>
+
+      <!-- 下一个重要日程 -->
+      <section class="comments-block reveal" style="margin-top: 26px;">
+        <div class="sec-head">
+          <h2>下一个重要日程</h2>
+          <span class="mono-tag">NEXT.UP</span>
+          <span class="rule"></span>
+        </div>
+        <div id="nextUp"></div>
+      </section>
+
+      <!-- 月历视图 -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>月历视图</h2>
+          <span class="mono-tag">CALENDAR</span>
+          <span class="rule"></span>
+          <span class="cal-navbox">
+            <button class="cal-nav" id="calPrev" type="button">‹</button>
+            <span class="cal-label" id="calLabel"></span>
+            <button class="cal-nav" id="calNext" type="button">›</button>
+          </span>
+        </div>
+        <div id="calWrap"></div>
+        <p class="plan-hint">&gt; ‹ › 切换月份 · 有安排的日子会亮起圆点 · 青色描边 = 今天</p>
+      </section>
+
+      <!-- 全部日程 -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>全部日程</h2>
+          <span class="mono-tag">EVENTS.ALL</span>
+          <span class="rule"></span>
+        </div>
+        <div id="eventList"></div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>© 2026 信号站 SIGNAL.BASE</span>
+      <span>POWERED BY HTML/CSS · DEPLOYING TO GITHUB PAGES</span>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════════
+       ★ 数据填写区（只改这里！改文字即可）★
+       ══════════════════════════════════════════════════════ -->
+  <script>
+  /* ── 日程列表 ──
+     date: 日期（必须，格式 YYYY-MM-DD）
+     name: 事项名
+     time: 时间（可空，如 "09:00"）
+     place: 地点（可空）
+     tag:  分类标签：考试/比赛/游戏/约定/日常（页面自动着色，别的词按「其他」处理）
+     note: 备注（可空） */
+  var SCHEDULE_EVENTS = [
+    { date: "2026-11-29", name: "国家公务员考试 · 笔试", time: "09:00", place: "", tag: "考试", note: "上岸冲刺！" },
+    { date: "2026-12-06", name: "江苏省公务员考试 · 笔试", time: "09:00", place: "", tag: "考试", note: "第二轮战场" },
+    { date: "2026-11-20", name: "卡店周常赛", time: "19:00", place: "", tag: "比赛", note: "示例数据·改我" },
+    { date: "2026-11-22", name: "和老同学的宝可梦对线", time: "14:00", place: "", tag: "约定", note: "示例数据·改我" }
+  ];
+  </script>
+  <!-- ═══════════════ 数据填写区结束 ═══════════════ -->
+
+  <script>
+  (function () {
+    "use strict";
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== null) e.textContent = text;
+      return e;
+    }
+
+    var TAG_COLORS = { "考试": "#f0c75e", "比赛": "#39c5bb", "游戏": "#a862c0", "约定": "#e8709a", "日常": "#74848a" };
+    function tagEl(t) {
+      var c = TAG_COLORS[t] || "#74848a";
+      var s = el("span", "sch-tag", t || "其他");
+      s.style.color = c;
+      s.style.borderColor = c;
+      s.style.background = c + "2b";
+      return s;
+    }
+
+    function parseDate(s) {
+      var p = String(s || "").split("-");
+      if (p.length !== 3) { return null; }
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    function ymd(d) {
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+    }
+    function dayDiff(d) {
+      var now = new Date();
+      var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((d - t0) / 86400000);
+    }
+    function countdownText(n) {
+      if (n === 0) { return "今天！"; }
+      if (n === 1) { return "明天"; }
+      return n + " 天后";
+    }
+    var WEEK = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    function fmtDate(d) {
+      var p = function (n) { return String(n).padStart(2, "0"); };
+      return (d.getMonth() + 1) + "月" + d.getDate() + "日 · " + WEEK[d.getDay()];
+    }
+
+    /* 预处理事件：解析日期、按日索引 */
+    var events = [];
+    var byDate = {};
+    (window.SCHEDULE_EVENTS || []).forEach(function (e) {
+      var d = parseDate(e.date);
+      if (!d) { return; }
+      var ev = {
+        date: e.date, d: d, name: e.name || "未命名事项",
+        time: e.time || "", place: e.place || "", tag: e.tag || "", note: e.note || "",
+        diff: dayDiff(d)
+      };
+      events.push(ev);
+      (byDate[e.date] = byDate[e.date] || []).push(ev);
+    });
+    events.sort(function (a, b) { return a.d - b.d; });
+    var upcoming = events.filter(function (e) { return e.diff >= 0; });
+    var past = events.filter(function (e) { return e.diff < 0; }).reverse();
+
+    /* ── 下一个重要日程 ── */
+    var nextBox = document.getElementById("nextUp");
+    if (!upcoming.length) {
+      nextBox.appendChild(el("div", "sc-empty", "> 暂无未来日程——去「数据填写区」添加_"));
+    } else {
+      var n = upcoming[0];
+      var card = el("div", "next-card");
+      var cd = el("div", "next-count");
+      cd.appendChild(el("b", null, String(n.diff === 0 ? "今天" : (n.diff === 1 ? "明天" : n.diff))));
+      cd.appendChild(el("span", null, n.diff === 0 ? "" : (n.diff === 1 ? "" : " 天后")));
+      card.appendChild(cd);
+      var info = el("div", "next-info");
+      var row1 = el("div", "next-name-row");
+      row1.appendChild(el("span", "next-name", n.name));
+      row1.appendChild(tagEl(n.tag));
+      info.appendChild(row1);
+      var meta = n.date + " " + WEEK[n.d.getDay()];
+      if (n.time) { meta += " · " + n.time; }
+      if (n.place) { meta += " · " + n.place; }
+      info.appendChild(el("div", "next-meta", meta));
+      if (n.note) { info.appendChild(el("div", "next-note", n.note)); }
+      card.appendChild(info);
+      nextBox.appendChild(card);
+      if (upcoming.length > 1) {
+        var more = el("p", "plan-hint", "> 之后还有 " + (upcoming.length - 1) + " 项：");
+        upcoming.slice(1, 4).forEach(function (e) {
+          more.textContent += " " + fmtDate(e.d) + " " + e.name + "（" + countdownText(e.diff) + "）；";
+        });
+        nextBox.appendChild(more);
+      }
+    }
+
+    /* ── 月历视图 ── */
+    var view = new Date();
+    view = new Date(view.getFullYear(), view.getMonth(), 1);
+    var calWrap = document.getElementById("calWrap");
+    var calLabel = document.getElementById("calLabel");
+
+    function renderCal() {
+      calWrap.textContent = "";
+      calLabel.textContent = view.getFullYear() + " 年 " + (view.getMonth() + 1) + " 月";
+      var grid = el("div", "cal-grid");
+      ["一", "二", "三", "四", "五", "六", "日"].forEach(function (w) {
+        grid.appendChild(el("div", "cal-week", w));
+      });
+      var startOffset = (new Date(view.getFullYear(), view.getMonth(), 1).getDay() + 6) % 7;
+      var daysIn = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+      var todayStr = ymd(new Date());
+      var i;
+      for (i = 0; i < startOffset; i++) { grid.appendChild(el("div", "cal-cell cal-empty", "")); }
+      for (i = 1; i <= daysIn; i++) {
+        var cell = el("div", "cal-cell");
+        var dd = new Date(view.getFullYear(), view.getMonth(), i);
+        var key = ymd(dd);
+        var dayRow = el("div", "cal-dayrow");
+        dayRow.appendChild(el("span", "cal-day" + (key === todayStr ? " is-today" : ""), String(i)));
+        cell.appendChild(dayRow);
+        var evs = byDate[key] || [];
+        if (evs.length) {
+          cell.classList.add("has-ev");
+          var dots = el("div", "cal-dots");
+          var c = TAG_COLORS[(evs[0].tag)] || "#74848a";
+          var dn = el("div", "cal-dotsline");
+          evs.slice(0, 4).forEach(function (e2) {
+            var d2 = el("span", "cal-dot");
+            d2.style.background = TAG_COLORS[e2.tag] || "#74848a";
+            dn.appendChild(d2);
+          });
+          dots.appendChild(dn);
+          var tip = evs.map(function (e2) { return e2.name; }).join(" / ");
+          cell.title = tip;
+          dots.appendChild(el("span", "cal-evcount", evs.length + " 项"));
+          cell.appendChild(dots);
+        }
+        grid.appendChild(cell);
+      }
+      calWrap.appendChild(grid);
+    }
+    document.getElementById("calPrev").addEventListener("click", function () {
+      view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+      renderCal();
+    });
+    document.getElementById("calNext").addEventListener("click", function () {
+      view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+      renderCal();
+    });
+    renderCal();
+
+    /* ── 全部日程列表 ── */
+    var listBox = document.getElementById("eventList");
+    function schRow(e, dim) {
+      var row = el("div", "sch-row" + (dim ? " past" : ""));
+      var dateBox = el("div", "sch-datebox");
+      dateBox.appendChild(el("span", "sch-md", (e.d.getMonth() + 1) + "." + e.d.getDate()));
+      dateBox.appendChild(el("span", "sch-week", WEEK[e.d.getDay()]));
+      row.appendChild(dateBox);
+      var cd = el("span", "sch-countdown" + (dim ? " past" : "") + (e.diff === 0 ? " today" : ""), countdownText(e.diff));
+      row.appendChild(cd);
+      var main = el("div", "sch-main");
+      var r1 = el("div", "sch-name-row");
+      r1.appendChild(el("span", "sch-name", e.name));
+      r1.appendChild(tagEl(e.tag));
+      main.appendChild(r1);
+      var meta = [];
+      if (e.time) { meta.push(e.time); }
+      if (e.place) { meta.push(e.place); }
+      if (meta.length) { main.appendChild(el("div", "sch-meta", meta.join(" · "))); }
+      if (e.note) { main.appendChild(el("div", "sch-note", e.note)); }
+      row.appendChild(main);
+      return row;
+    }
+    if (upcoming.length) {
+      upcoming.forEach(function (e) { listBox.appendChild(schRow(e, false)); });
+    } else {
+      listBox.appendChild(el("div", "sc-empty", "> 暂无未来日程_"));
+    }
+    if (past.length) {
+      listBox.appendChild(el("h4", "list-sub", "已结束 ARCHIVED"));
+      past.forEach(function (e) { listBox.appendChild(schRow(e, true)); });
+    }
+    if (!events.length) { listBox.appendChild(el("div", "sc-empty", "> 日程数据为空——去「数据填写区」添加_")); }
+  })();
+  </script>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/bg-pokemon.js"></script>
+</body>
+</html>
