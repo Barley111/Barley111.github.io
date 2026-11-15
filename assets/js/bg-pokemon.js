@@ -57,6 +57,7 @@
         bobFreq: 0.3 + Math.random() * 0.5,
         phase: Math.random() * Math.PI * 2,
         size: size,
+        tier: tier,
         maxOp: 0.2 + (1 - tier) * 0.38,
         fadeFreq: 0.12 + Math.random() * 0.22,
         wobFreq: 0.4 + Math.random() * 0.6,
@@ -98,6 +99,14 @@
   var gPhaseT = 0;
   var gX = 0;           /* 成形原点的屏幕位置（随游动推进） */
   var gBaseY = 0;
+  var whaleDir = Math.random() < 0.5 ? 1 : -1; /* +1 向右，-1 向左（来回折返） */
+  var camX = 0, camY = 0;   /* 裸眼 3D 视差相机偏移（鼠标驱动，静置自动漫游） */
+  var mouseX = 0, mouseY = 0, lastMouseT = -9;
+  window.addEventListener("mousemove", function (e) {
+    mouseX = (e.clientX / Math.max(1, W) - 0.5) * 2;
+    mouseY = (e.clientY / Math.max(1, H) - 0.5) * 2;
+    lastMouseT = Date.now() / 1000;
+  });
   var gNextT = 1.5;     /* 下一次巨兽登场的时间戳（秒） */
   var gIdx = Math.floor(Math.random() * GIANTS.length);
   var artCache = {};
@@ -161,7 +170,8 @@
             delay: Math.random() * 1.1,
             dvx: (Math.random() - 0.5) * 220,
             dvy: (Math.random() - 0.5) * 220 - 60,
-            wob: Math.random() * Math.PI * 2
+            wob: Math.random() * Math.PI * 2,
+            z: Math.random()
           });
         }
       }
@@ -187,15 +197,18 @@
         }
         gPhase = "assemble";
         gPhaseT = 0;
-        gX = -gFormW * 0.5 - 40;
+        gX = whaleDir === 1 ? gFormW * 0.32 : W - gFormW * 0.32;
         gBaseY = H * (0.3 + Math.random() * 0.22);
       });
     } else if (gPhase === "assemble" && gPhaseT > 2.8) {
       gPhase = "swim";
       gPhaseT = 0;
     } else if (gPhase === "swim") {
-      gX += (W * 0.011) * dt;
-      if (gPhaseT > 34) {
+      gX += whaleDir * (W / 50) * dt;
+      /* 来回折返：到边界就掉头，永不重置 */
+      if (whaleDir === 1 && gX > W - gFormW * 0.3) { whaleDir = -1; }
+      if (whaleDir === -1 && gX < gFormW * 0.3) { whaleDir = 1; }
+      if (gPhaseT > 30) {
         gPhase = "dissolve";
         gPhaseT = 0;
       }
@@ -207,6 +220,8 @@
     dbg.phase = gPhase;
     dbg.phaseT = Math.round(gPhaseT * 10) / 10;
     dbg.parts = gParts.length;
+    dbg.camX = Math.round(camX * 10) / 10;
+    dbg.dir = whaleDir;
   }
 
   function giantDraw(t) {
@@ -215,30 +230,33 @@
     for (var i = 0; i < gParts.length; i++) {
       var q = gParts[i];
       var wob = Math.sin(t * 1.5 + q.tx * 0.013 + q.wob) * 7;
-      var px, py, al;
+      var wFace = whaleDir === 1 ? -1 : 1; /* 官方立绘默认朝左 */
+      var px, py, al, dsz;
+      /* 裸眼 3D：按粒子深度 z 施加视差偏移，近处动得多、远处动得少 */
       if (gPhase === "assemble") {
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
-        px = gX + q.tx + q.sx * (1 - e);
-        py = gBaseY + q.ty + q.sy * (1 - e) + wob;
-        al = (0.15 + q.br * 0.5) * e;
+        px = gX + q.tx * wFace + q.sx * (1 - e) + camX * q.z;
+        py = gBaseY + q.ty + q.sy * (1 - e) + wob + camY * q.z * 0.6;
+        al = (0.15 + q.br * 0.5) * e * (0.55 + q.z * 0.45);
       } else if (gPhase === "swim") {
-        px = gX + q.tx;
-        py = gBaseY + q.ty + wob;
-        al = 0.15 + q.br * 0.5;
+        px = gX + q.tx * wFace + camX * q.z;
+        py = gBaseY + q.ty + wob + camY * q.z * 0.6;
+        al = (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45);
       } else { /* dissolve */
-        px = gX + q.tx + q.dvx * gPhaseT;
-        py = gBaseY + q.ty + wob + q.dvy * gPhaseT;
-        al = Math.max(0, (0.15 + q.br * 0.5) * (1 - gPhaseT / 2.0));
+        px = gX + q.tx * wFace + q.dvx * gPhaseT + camX * q.z;
+        py = gBaseY + q.ty + wob + q.dvy * gPhaseT + camY * q.z * 0.6;
+        al = Math.max(0, (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45) * (1 - gPhaseT / 2.0));
       }
       if (al <= 0.02) { continue; }
+      dsz = 1.5 + q.z * 1.5; /* 近处的粒子更大 */
       /* 立绘原色 × 青色全息色调混合 */
       gctx.globalAlpha = al;
       gctx.fillStyle = "rgb(" +
         Math.round(q.r * 0.4 + 57 * 0.6) + "," +
         Math.round(q.g * 0.4 + 197 * 0.6) + "," +
         Math.round(q.b * 0.4 + 187 * 0.6) + ")";
-      gctx.fillRect(px, py, 2, 2);
+      gctx.fillRect(px, py, dsz, dsz);
     }
     gctx.globalAlpha = 1;
   }
@@ -250,6 +268,13 @@
     var dt = Math.min(0.1, (now - last) / 1000);
     last = now;
     var t = now / 1000;
+
+    /* 裸眼 3D 视差相机：跟随鼠标，静置 2.5 秒后自动漫游 */
+    var idle = (t - lastMouseT) > 2.5;
+    var camTX = idle ? Math.sin(t * 0.32) : mouseX;
+    var camTY = idle ? Math.cos(t * 0.24) * 0.6 : mouseY;
+    camX += (camTX * 26 - camX) * Math.min(1, dt * 3);
+    camY += (camTY * 16 - camY) * Math.min(1, dt * 3);
 
     /* 小幽灵 */
     for (var i = 0; i < ghosts.length; i++) {
@@ -267,7 +292,8 @@
       var wob = Math.sin(t * g.wobFreq + g.phase) * 14;
       g.el.style.opacity = op.toFixed(3);
       g.el.style.transform =
-        "translate3d(" + g.x.toFixed(1) + "px," + g.y.toFixed(1) + "px,0)" +
+        "translate3d(" + (g.x + camX * (1 - g.tier) * 0.5).toFixed(1) + "px," +
+        (g.y + camY * (1 - g.tier) * 0.4).toFixed(1) + "px,0)" +
         " perspective(700px) rotateY(" + wob.toFixed(1) + "deg)" +
         " scaleX(" + face + ")";
     }
