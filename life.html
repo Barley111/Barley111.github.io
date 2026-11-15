@@ -170,12 +170,13 @@
         var vwrap = el("div", "life-video");
         var iframe = document.createElement("iframe");
         iframe.dataset.bvid = post.video; /* src 由 IntersectionObserver 滚动到位后再加载 */
+        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox");
         iframe.setAttribute("scrolling", "no");
         iframe.setAttribute("frameborder", "no");
         iframe.allowFullscreen = true;
         vwrap.appendChild(iframe);
-        /* 透明覆盖层：拦截点击，防止误跳 B 站（视频仅作展示） */
-        vwrap.appendChild(el("div", "life-video-cover"));
+        /* 顶部盖板：挡住标题横幅的跳转链接；iframe 沙箱兜底保证页面永不跳走 */
+        vwrap.appendChild(el("div", "life-video-cover top"));
         card.appendChild(vwrap);
       }
       node.appendChild(card);
