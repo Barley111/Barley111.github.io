@@ -33,14 +33,23 @@
   function mkGhostImg(dex, onReady) {
     var img = document.createElement("img");
     var i = 0;
+    /* 优先 Gen5 官方动画 GIF（翅膀扇动/尾巴摇摆自带），失败逐级回退静态像素图 */
+    var urls = [
+      BASES[0] + "versions/generation-v/black-white/animated/" + dex + ".gif",
+      BASES[1] + "versions/generation-v/black-white/animated/" + dex + ".gif",
+      BASES[2] + "versions/generation-v/black-white/animated/" + dex + ".gif",
+      BASES[0] + dex + ".png",
+      BASES[1] + dex + ".png",
+      BASES[2] + dex + ".png"
+    ];
     img.alt = "";
     img.addEventListener("error", function () {
       i++;
-      if (i < BASES.length) { img.src = BASES[i] + dex + ".png"; }
+      if (i < urls.length) { img.src = urls[i]; }
       else if (img.parentNode) { layer.removeChild(img); }
     });
     img.addEventListener("load", function () { onReady(img); });
-    img.src = BASES[0] + dex + ".png";
+    img.src = urls[0];
   }
 
   function spawnGhost(dex) {
@@ -100,6 +109,7 @@
   var gPhaseT = 0;
   var gX = 0;           /* 成形原点的屏幕位置（随游动推进） */
   var gBaseY = 0;
+  var gAnchorY = 0;     /* 高度锚点：不规则飞行围绕它上下游移 */
   var whaleDir = Math.random() < 0.5 ? 1 : -1; /* +1 向右，-1 向左（来回折返） */
   var camX = 0, camY = 0;   /* 裸眼 3D 视差相机偏移（鼠标驱动，静置自动漫游） */
   var mouseX = 0, mouseY = 0, lastMouseT = -9;
@@ -199,16 +209,18 @@
         gPhase = "assemble";
         gPhaseT = 0;
         gX = whaleDir === 1 ? gFormW * 0.32 : W - gFormW * 0.32;
-        gBaseY = H * (0.3 + Math.random() * 0.22);
+        gAnchorY = H * (0.28 + Math.random() * 0.24);
+        gBaseY = gAnchorY;
       });
     } else if (gPhase === "assemble" && gPhaseT > 2.8) {
       gPhase = "swim";
       gPhaseT = 0;
     } else if (gPhase === "swim") {
-      /* 鲸跃节奏：滑行与蹬水交替，速度有呼吸感 */
+      /* 鲸跃节奏 + 不规则飞行：双频叠加的高度游移（爬升/俯冲） */
       var kick = 0.72 + 0.55 * Math.max(0, Math.sin(t * 0.7));
       gX += whaleDir * (W / 50) * kick * dt;
-      /* 来回折返：到边界就掉头，永不重置 */
+      gBaseY = gAnchorY + Math.sin(t * 0.17 + 1.2) * (H * 0.085) + Math.sin(t * 0.41) * (H * 0.045);
+      /* 来回折返：到边界就掉头 */
       if (whaleDir === 1 && gX > W - gFormW * 0.3) { whaleDir = -1; }
       if (whaleDir === -1 && gX < gFormW * 0.3) { whaleDir = 1; }
       if (gPhaseT > 30) {
@@ -230,9 +242,16 @@
   function giantDraw(t) {
     gctx.clearRect(0, 0, W, H);
     if (!gParts.length || gPhase === "loading" || gPhase === "idle") { return; }
+    /* 飞行姿态：随爬升/俯冲产生俯仰角，叠加转弯侧倾 */
+    var dySlope = H * (0.085 * 0.17 * Math.cos(t * 0.17 + 1.2) + 0.045 * 0.41 * Math.cos(t * 0.41));
+    var rot = Math.atan2(dySlope, W / 50) * whaleDir + Math.sin(t * 0.29) * 0.055 * whaleDir;
+    gctx.save();
+    gctx.translate(gX, gBaseY);
+    gctx.rotate(rot);
+    gctx.translate(-gX, -gBaseY);
     for (var i = 0; i < gParts.length; i++) {
       var q = gParts[i];
-      var wob = Math.sin(t * 1.5 + q.tx * 0.013) * 3.5; /* 身体涟漪：同相行波，不再随机蠕动 */
+      var wob = Math.sin(t * 1.5 + q.tx * 0.013) * 3.5; /* 身体涟漪：同相行波 */
       var wFace = whaleDir === 1 ? -1 : 1;
       /* 鲸式推进：前段身体近乎刚体，摆幅集中在尾段沿身体向后传导 */
       var tailU = (q.tx * wFace + gFormW * 0.5) / Math.max(1, gFormW);
@@ -240,21 +259,22 @@
       f = f * f * (3 - 2 * f); /* smoothstep，头部摆幅≈0 */
       var sway = Math.sin(t * 1.9 - q.tx * 0.010 + q.wob * 0.15) * (1 + f * 15);
       var fluke = f * Math.sin(t * 1.9 - q.tx * 0.010) * 6; /* 尾鳍垂直击水 */
+      var flap = Math.sin(t * 5.2) * (q.ty < 0 ? 9 : 5) * (0.4 + q.z * 0.6); /* 翅膀/背脊扇动：上半身更欢 */
       var px, py, al, dsz;
       /* 裸眼 3D：按粒子深度 z 施加视差偏移，近处动得多、远处动得少 */
       if (gPhase === "assemble") {
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
-        px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z;
-        py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + camY * q.z * 0.6;
+        px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z + Math.sin(t * 6.3 + q.wob * 5) * 1.3;
+        py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + flap + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * e * (0.55 + q.z * 0.45);
       } else if (gPhase === "swim") {
-        px = gX + q.tx * wFace + sway + camX * q.z;
-        py = gBaseY + q.ty + wob + fluke + camY * q.z * 0.6;
+        px = gX + q.tx * wFace + sway + camX * q.z + Math.sin(t * 6.3 + q.wob * 5) * 1.3;
+        py = gBaseY + q.ty + wob + fluke + flap + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45);
       } else { /* dissolve */
         px = gX + q.tx * wFace + sway + q.dvx * gPhaseT + camX * q.z;
-        py = gBaseY + q.ty + wob + fluke + q.dvy * gPhaseT + camY * q.z * 0.6;
+        py = gBaseY + q.ty + wob + fluke + flap + q.dvy * gPhaseT + camY * q.z * 0.6;
         al = Math.max(0, (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45) * (1 - gPhaseT / 2.0));
       }
       if (al <= 0.02) { continue; }
@@ -267,6 +287,7 @@
         Math.round(q.b * 0.4 + 187 * 0.6) + ")";
       gctx.fillRect(px, py, dsz, dsz);
     }
+    gctx.restore();
     gctx.globalAlpha = 1;
   }
 
