@@ -222,10 +222,9 @@
       gPhase = "swim";
       gPhaseT = 0;
     } else if (gPhase === "swim") {
-      /* 鲸跃节奏 + 不规则飞行：双频叠加的高度游移（爬升/俯冲） */
-      var kick = 0.72 + 0.55 * Math.max(0, Math.sin(t * 0.7));
-      gX += whaleDir * (W / 50) * kick * dt;
-      gBaseY = gAnchorY + Math.sin(t * 0.17 + 1.2) * (H * 0.085) + Math.sin(t * 0.41) * (H * 0.045);
+      /* 纪录片式巡游：恒定庄严的速度，缓缓爬升/俯冲（大海深处的鲸） */
+      gX += whaleDir * (W / 50) * dt;
+      gBaseY = gAnchorY + Math.sin(t * 0.17 + 1.2) * (H * 0.085) + Math.sin(t * 0.31) * (H * 0.05);
       /* 来回折返：到边界就掉头 */
       if (whaleDir === 1 && gX > W - gFormW * 0.3) { whaleDir = -1; }
       if (whaleDir === -1 && gX < gFormW * 0.3) { whaleDir = 1; }
@@ -257,15 +256,14 @@
     gctx.translate(-gX, -gBaseY);
     for (var i = 0; i < gParts.length; i++) {
       var q = gParts[i];
-      var wob = Math.sin(t * 1.5 + q.tx * 0.013) * 3.5; /* 身体涟漪：同相行波 */
+      var wob = Math.sin(t * 1.2 + q.tx * 0.010) * 3; /* 身体涟漪：缓慢同相行波 */
       var wFace = whaleDir === 1 ? -1 : 1;
-      /* 鲸式推进：前段身体近乎刚体，摆幅集中在尾段沿身体向后传导 */
+      /* 纪录片式鲸泳：身体近乎刚体，只有尾部缓缓摆动 */
       var tailU = (q.tx * wFace + gFormW * 0.5) / Math.max(1, gFormW);
-      var f = Math.max(0, Math.min(1, (tailU - 0.42) / 0.58));
-      f = f * f * (3 - 2 * f); /* smoothstep，头部摆幅≈0 */
-      var sway = Math.sin(t * 1.9 - q.tx * 0.010 + q.wob * 0.15) * (1 + f * 15);
-      var fluke = f * Math.sin(t * 1.9 - q.tx * 0.010) * 6; /* 尾鳍垂直击水 */
-      var flap = Math.sin(t * 5.2) * (q.ty < 0 ? 9 : 5) * (0.4 + q.z * 0.6); /* 翅膀/背脊扇动：上半身更欢 */
+      var f = Math.max(0, Math.min(1, (tailU - 0.5) / 0.5));
+      f = f * f * (3 - 2 * f); /* smoothstep，前半身完全不动 */
+      var sway = Math.sin(t * 1.2 - q.tx * 0.008 + q.wob * 0.15) * (0.5 + f * 13);
+      var fluke = f * Math.sin(t * 1.2 - q.tx * 0.008) * 7; /* 尾鳍缓缓摆动 */
       var px, py, al, dsz;
       /* 自然感：个体独立闪烁（萤火虫式） */
       var twk = 0.72 + 0.28 * Math.sin(t * q.tf + q.tw);
@@ -278,15 +276,15 @@
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
         px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z;
-        py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + flap + camY * q.z * 0.6;
+        py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * e;
       } else if (gPhase === "swim") {
         px = gX + q.tx * wFace + sway + camX * q.z;
-        py = gBaseY + q.ty + wob + fluke + flap + camY * q.z * 0.6;
+        py = gBaseY + q.ty + wob + fluke + camY * q.z * 0.6;
         al = 0.15 + q.br * 0.5;
       } else { /* dissolve */
         px = gX + q.tx * wFace + sway + q.dvx * gPhaseT + camX * q.z;
-        py = gBaseY + q.ty + wob + fluke + flap + q.dvy * gPhaseT + camY * q.z * 0.6;
+        py = gBaseY + q.ty + wob + fluke + q.dvy * gPhaseT + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * (1 - gPhaseT / 2.0);
       }
       al *= twk * (0.55 + q.z * 0.45);
