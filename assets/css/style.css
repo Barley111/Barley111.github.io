@@ -108,13 +108,13 @@ code, pre { font-family: var(--mono); }
 .logo-text { display: flex; flex-direction: column; line-height: 1.25; font-size: 15px; }
 .logo-text small { color: var(--text-dim); font-weight: 400; font-size: 10px; letter-spacing: 0.24em; }
 
-.nav-links { display: flex; align-items: center; gap: 6px; }
+.nav-links { display: flex; align-items: center; gap: 3px; }
 .nav-links a {
   font-family: var(--mono);
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  letter-spacing: 0.05em;
   color: var(--text-dim);
-  padding: 6px 14px;
+  padding: 4px 9px;
   transform: skewX(-10deg);
   border: 1px solid transparent;
   transition: all 0.2s;
@@ -858,6 +858,7 @@ code, pre { font-family: var(--mono); }
 .life-imgbox:hover img { transform: scale(1.05); }
 .life-video { position: relative; padding-top: 56.25%; margin-top: 14px; border: 1px solid var(--line); clip-path: var(--clip-corner-sm); }
 .life-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.life-video-cover { position: absolute; inset: 0; z-index: 2; cursor: default; }
 
 /* ---------- v1.6 背景信号幽灵（游动的全息宝可梦） ---------- */
 #pk-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
