@@ -1,21 +1,16 @@
 /* ============================================================
    信号站 SIGNAL.BASE · bg-pokemon.js
-   背景游动的「信号幽灵」：像素宝可梦以全息投影形态
-   在全站背景中游荡——忽隐忽现、深度分层、轻微 3D 翻转。
+   背景特效系统：
+   ① 小型「信号幽灵」：像素宝可梦全息游荡，忽隐忽现
+   ② 巨型「深海巨兽」：粒子点阵成形 —— 汇聚 → 游动 → 消融，
+      每轮随机一位巨兽（吼鲸王/暴鲤龙/盖欧卡/快龙）
    - 尊重系统「减少动态效果」设置（开启则完全不启动）
-   - 小屏自动减量；rAF 驱动，仅 transform/opacity，性能友好
-   - 图源走 jsDelivr 镜像链（与 games.html 同策略）
+   - rAF 驱动；小幽灵走 DOM transform，巨兽走 Canvas 粒子
+   - 图源走 jsDelivr 镜像链（国内可达优先）
    ============================================================ */
 (function () {
   "use strict";
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  var DEX = [25, 94, 133, 137, 202, 280, 447, 479]; /* 皮卡丘/耿鬼/伊布/多边兽/果然翁/拉鲁拉丝/利欧路/洛托姆 */
-  var BASES = [
-    "https://testingcf.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/",
-    "https://fastly.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/",
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
-  ];
 
   var layer = document.createElement("div");
   layer.id = "pk-bg";
@@ -24,9 +19,18 @@
 
   var W = window.innerWidth;
   var H = window.innerHeight;
+
+  var BASES = [
+    "https://testingcf.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/",
+    "https://fastly.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/",
+    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
+  ];
+
+  /* ══════════ ① 小型信号幽灵（DOM 层） ══════════ */
+  var GHOST_DEX = [25, 94, 133, 137, 202, 280, 447, 479];
   var ghosts = [];
 
-  function mkImg(dex, onReady) {
+  function mkGhostImg(dex, onReady) {
     var img = document.createElement("img");
     var i = 0;
     img.alt = "";
@@ -39,9 +43,9 @@
     img.src = BASES[0] + dex + ".png";
   }
 
-  function spawn(dex) {
-    mkImg(dex, function (img) {
-      var tier = Math.random(); /* 深度层：0=近 1=远 */
+  function spawnGhost(dex) {
+    mkGhostImg(dex, function (img) {
+      var tier = Math.random();
       var size = 34 + Math.round(tier * 60);
       var g = {
         el: img,
@@ -67,55 +71,197 @@
     });
   }
 
-  DEX.forEach(function (d) { spawn(d); });
-  var extra = (W < 700 ? 4 : 10) - DEX.length;
-  for (var k = 0; k < extra; k++) { spawn(DEX[Math.floor(Math.random() * DEX.length)]); }
+  GHOST_DEX.forEach(function (d) { spawnGhost(d); });
+  var gExtra = (W < 700 ? 4 : 10) - GHOST_DEX.length;
+  for (var gi = 0; gi < gExtra; gi++) { spawnGhost(GHOST_DEX[Math.floor(Math.random() * GHOST_DEX.length)]); }
 
-  /* ── 巨型背景宝可梦：巨兽巡游（DeepSeek 式水印 × 深海游动）──
-     每次刷新随机一位巨兽：吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙，
-     以约 90 秒横穿全屏的速度巡游，伴随起伏与轻微俯仰 */
-  var GIANTS = [321, 130, 382, 149];
-  var gdex = GIANTS[Math.floor(Math.random() * GIANTS.length)];
-  var whale = document.createElement("img");
-  var wi = 0;
-  whale.id = "pk-whale";
-  whale.alt = "";
-  whale.setAttribute("aria-hidden", "true");
-  whale.addEventListener("error", function () {
-    wi++;
-    if (wi < BASES.length) { whale.src = BASES[wi] + "other/official-artwork/" + gdex + ".png"; }
-    else if (whale.parentNode) { layer.removeChild(whale); }
-  });
-  whale.src = BASES[0] + "other/official-artwork/" + gdex + ".png";
-  layer.appendChild(whale);
+  /* ══════════ ② 巨型深海巨兽（Canvas 粒子系统） ══════════ */
+  var GIANTS = [321, 130, 382, 149]; /* 吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙 */
+  var giantCanvas = document.createElement("canvas");
+  giantCanvas.id = "pk-giant";
+  layer.appendChild(giantCanvas);
+  var gctx = giantCanvas.getContext("2d");
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
 
-  var whaleDir = Math.random() < 0.5 ? -1 : 1;
-  var whaleX = whaleDir === 1 ? -0.4 * W : W * 1.02;
-  var whaleBaseY = H * (0.32 + Math.random() * 0.18);
-  var whaleW = 0; /* 立绘加载完成后按 CSS 实际渲染宽度取值 */
-  whale.addEventListener("load", function () {
-    whaleW = parseFloat(getComputedStyle(whale).width) || W * 0.9;
-  });
+  function sizeGiant() {
+    giantCanvas.width = W * dpr;
+    giantCanvas.height = H * dpr;
+    giantCanvas.style.width = W + "px";
+    giantCanvas.style.height = H + "px";
+    gctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeGiant();
 
+  var gParts = [];      /* 粒子数组：tx/ty 相对成形原点的目标位，颜色，散布参数 */
+  var gFormW = 0;
+  var gPhase = "idle";  /* idle → loading → assemble → swim → dissolve → idle */
+  var gPhaseT = 0;
+  var gX = 0;           /* 成形原点的屏幕位置（随游动推进） */
+  var gBaseY = 0;
+  var gNextT = 1.5;     /* 下一次巨兽登场的时间戳（秒） */
+  var gIdx = Math.floor(Math.random() * GIANTS.length);
+  var artCache = {};
+  var dbg = { phase: gPhase, parts: 0, dex: 0, errs: [] };
+  try { window.__pkDebug = dbg; } catch (e) { }
+
+  function loadArt(dex, cb) {
+    if (artCache[dex]) { return cb(artCache[dex]); }
+    var img = new Image();
+    var i = 0;
+    img.crossOrigin = "anonymous";
+    img.addEventListener("error", function () {
+      i++;
+      dbg.errs.push("art " + dex + " mirror " + i + " failed");
+      if (i < BASES.length) { img.src = BASES[i] + "other/official-artwork/" + dex + ".png"; }
+      else { cb(null); }
+    });
+    img.addEventListener("load", function () {
+      artCache[dex] = img;
+      cb(img);
+    });
+    img.src = BASES[0] + "other/official-artwork/" + dex + ".png";
+  }
+
+  /* 把立绘采样成粒子：按网格取不透明像素，自动加大间距控制总量 */
+  function buildParticles(img) {
+    var targetW = Math.min(820, Math.max(460, W * 0.55));
+    var scale = targetW / img.naturalWidth;
+    var w = Math.max(1, Math.round(img.naturalWidth * scale));
+    var h = Math.max(1, Math.round(img.naturalHeight * scale));
+    var off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    var octx = off.getContext("2d");
+    octx.drawImage(img, 0, 0, w, h);
+    var data;
+    try {
+      data = octx.getImageData(0, 0, w, h).data;
+    } catch (e) {
+      dbg.errs.push("getImageData tainted: " + (e && e.message));
+      return false; /* 跨域污染时放弃本轮 */
+    }
+    var spacing = 7;
+    gParts = [];
+    for (;;) {
+      gParts = [];
+      for (var y = 0; y < h; y += spacing) {
+        for (var x = 0; x < w; x += spacing) {
+          var idx = (y * w + x) * 4;
+          if (data[idx + 3] < 90) { continue; }
+          var br = (data[idx] * 0.3 + data[idx + 1] * 0.55 + data[idx + 2] * 0.15) / 255;
+          gParts.push({
+            tx: x - w / 2,
+            ty: y - h / 2,
+            r: data[idx],
+            g: data[idx + 1],
+            b: data[idx + 2],
+            br: br,
+            sx: (Math.random() - 0.5) * W * 0.9,
+            sy: (Math.random() - 0.5) * H * 0.8,
+            delay: Math.random() * 1.1,
+            dvx: (Math.random() - 0.5) * 220,
+            dvy: (Math.random() - 0.5) * 220 - 60,
+            wob: Math.random() * Math.PI * 2
+          });
+        }
+      }
+      if (gParts.length <= 2400 || spacing >= 15) { break; }
+      spacing += 2;
+    }
+    dbg.parts = gParts.length;
+    gFormW = w;
+    return gParts.length > 60;
+  }
+
+  function giantUpdate(dt, t) {
+    gPhaseT += dt;
+    if (gPhase === "idle" && t >= gNextT) {
+      var dex = GIANTS[gIdx % GIANTS.length];
+      gIdx++;
+      gPhase = "loading";
+      loadArt(dex, function (img) {
+        if (!img || !buildParticles(img)) {
+          gPhase = "idle";
+          gNextT = t + 5;
+          return;
+        }
+        gPhase = "assemble";
+        gPhaseT = 0;
+        gX = -gFormW * 0.5 - 40;
+        gBaseY = H * (0.3 + Math.random() * 0.22);
+      });
+    } else if (gPhase === "assemble" && gPhaseT > 2.8) {
+      gPhase = "swim";
+      gPhaseT = 0;
+    } else if (gPhase === "swim") {
+      gX += (W * 0.011) * dt;
+      if (gPhaseT > 34) {
+        gPhase = "dissolve";
+        gPhaseT = 0;
+      }
+    } else if (gPhase === "dissolve" && gPhaseT > 2.2) {
+      gParts = [];
+      gPhase = "idle";
+      gNextT = t + 2.5 + Math.random() * 2.5;
+    }
+    dbg.phase = gPhase;
+    dbg.phaseT = Math.round(gPhaseT * 10) / 10;
+    dbg.parts = gParts.length;
+  }
+
+  function giantDraw(t) {
+    gctx.clearRect(0, 0, W, H);
+    if (!gParts.length || gPhase === "loading" || gPhase === "idle") { return; }
+    for (var i = 0; i < gParts.length; i++) {
+      var q = gParts[i];
+      var wob = Math.sin(t * 1.5 + q.tx * 0.013 + q.wob) * 7;
+      var px, py, al;
+      if (gPhase === "assemble") {
+        var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
+        var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
+        px = gX + q.tx + q.sx * (1 - e);
+        py = gBaseY + q.ty + q.sy * (1 - e) + wob;
+        al = (0.15 + q.br * 0.5) * e;
+      } else if (gPhase === "swim") {
+        px = gX + q.tx;
+        py = gBaseY + q.ty + wob;
+        al = 0.15 + q.br * 0.5;
+      } else { /* dissolve */
+        px = gX + q.tx + q.dvx * gPhaseT;
+        py = gBaseY + q.ty + wob + q.dvy * gPhaseT;
+        al = Math.max(0, (0.15 + q.br * 0.5) * (1 - gPhaseT / 2.0));
+      }
+      if (al <= 0.02) { continue; }
+      /* 立绘原色 × 青色全息色调混合 */
+      gctx.globalAlpha = al;
+      gctx.fillStyle = "rgb(" +
+        Math.round(q.r * 0.4 + 57 * 0.6) + "," +
+        Math.round(q.g * 0.4 + 197 * 0.6) + "," +
+        Math.round(q.b * 0.4 + 187 * 0.6) + ")";
+      gctx.fillRect(px, py, 2, 2);
+    }
+    gctx.globalAlpha = 1;
+  }
+
+  /* ══════════ 主循环 ══════════ */
   var last = Date.now();
   function tick() {
     var now = Date.now();
     var dt = Math.min(0.1, (now - last) / 1000);
     last = now;
     var t = now / 1000;
+
+    /* 小幽灵 */
     for (var i = 0; i < ghosts.length; i++) {
       var g = ghosts[i];
       g.x += g.vx * dt;
       g.y += g.vy * dt + Math.sin(t * g.bobFreq + g.phase) * g.bobAmp * dt;
-      /* 越界环绕：从对侧游回来 */
       if (g.x < -g.size - 60) { g.x = W + 40; }
       if (g.x > W + g.size + 60) { g.x = -40; }
       if (g.y < -g.size - 60) { g.y = H + 30; }
       if (g.y > H + g.size + 60) { g.y = -30; }
-      /* 忽隐忽现：正弦包络压到 0 = 完全隐身 */
       var fade = Math.sin(t * g.fadeFreq * Math.PI * 2 + g.phase);
       var op = g.maxOp * Math.max(0, Math.min(1, fade * 1.7));
-      /* 全息闪烁 */
       op *= 0.92 + 0.08 * Math.sin(t * 13 + g.phase * 3);
       var face = g.vx >= 0 ? 1 : -1;
       var wob = Math.sin(t * g.wobFreq + g.phase) * 14;
@@ -126,24 +272,10 @@
         " scaleX(" + face + ")";
     }
 
-    /* 巨兽巡游：缓慢横穿 + 深潜起伏 + 俯仰 */
-    if (whaleW > 0) {
-      whaleX += whaleDir * (W / 55) * dt;
-      var wy = whaleBaseY + Math.sin(t * 0.14) * (H * 0.05);
-      if (whaleDir === 1 && whaleX > W + whaleW * 0.55) {
-        whaleX = -whaleW * 0.55;
-        whaleBaseY = H * (0.28 + Math.random() * 0.3);
-      }
-      if (whaleDir === -1 && whaleX < -whaleW * 0.55) {
-        whaleX = W * 1.02;
-        whaleBaseY = H * (0.28 + Math.random() * 0.3);
-      }
-      var wFace = whaleDir === 1 ? -1 : 1; /* 官方立绘默认朝左，向右游需镜像 */
-      var wTilt = Math.cos(t * 0.14) * 3.5 * wFace;
-      whale.style.transform =
-        "translate3d(" + whaleX.toFixed(1) + "px," + wy.toFixed(1) + "px,0)" +
-        " scaleX(" + wFace + ") rotate(" + wTilt.toFixed(2) + "deg)";
-    }
+    /* 巨兽 */
+    giantUpdate(dt, t);
+    giantDraw(t);
+
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -151,6 +283,6 @@
   window.addEventListener("resize", function () {
     W = window.innerWidth;
     H = window.innerHeight;
-    if (whaleW > 0) { whaleW = parseFloat(getComputedStyle(whale).width) || whaleW; }
+    sizeGiant();
   });
 })();

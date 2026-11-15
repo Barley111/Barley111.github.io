@@ -775,14 +775,4 @@ code, pre { font-family: var(--mono); }
   filter: drop-shadow(0 0 6px rgba(57, 197, 187, 0.5));
 }
 @media (prefers-reduced-motion: reduce) { #pk-bg { display: none; } }
-#pk-bg #pk-whale {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 95vmin;
-  opacity: 0.1;
-  will-change: transform;
-  image-rendering: auto;
-  filter: drop-shadow(0 0 46px rgba(57, 197, 187, 0.14));
-}
-@media (max-width: 700px) { #pk-bg #pk-whale { width: 120vmin; opacity: 0.08; } }
+#pk-bg #pk-giant { position: absolute; top: 0; left: 0; pointer-events: none; }
