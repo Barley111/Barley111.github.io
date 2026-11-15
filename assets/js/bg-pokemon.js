@@ -51,8 +51,9 @@
         el: img,
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() < 0.5 ? -1 : 1) * (5 + Math.random() * 11) * (1 - tier * 0.55),
-        vy: (Math.random() - 0.5) * 9,
+        spd: (5 + Math.random() * 11) * (1 - tier * 0.55),
+        wa: Math.random() * Math.PI * 2,
+        dartT: 0,
         bobAmp: 6 + Math.random() * 14,
         bobFreq: 0.3 + Math.random() * 0.5,
         phase: Math.random() * Math.PI * 2,
@@ -204,7 +205,9 @@
       gPhase = "swim";
       gPhaseT = 0;
     } else if (gPhase === "swim") {
-      gX += whaleDir * (W / 50) * dt;
+      /* 鲸跃节奏：滑行与蹬水交替，速度有呼吸感 */
+      var kick = 0.72 + 0.55 * Math.max(0, Math.sin(t * 0.7));
+      gX += whaleDir * (W / 50) * kick * dt;
       /* 来回折返：到边界就掉头，永不重置 */
       if (whaleDir === 1 && gX > W - gFormW * 0.3) { whaleDir = -1; }
       if (whaleDir === -1 && gX < gFormW * 0.3) { whaleDir = 1; }
@@ -230,21 +233,24 @@
     for (var i = 0; i < gParts.length; i++) {
       var q = gParts[i];
       var wob = Math.sin(t * 1.5 + q.tx * 0.013 + q.wob) * 7;
-      var wFace = whaleDir === 1 ? -1 : 1; /* 官方立绘默认朝左 */
+      var wFace = whaleDir === 1 ? -1 : 1;
+      /* 尾部摆动：行波从头向尾传导，越靠尾部摆幅越大（真实鱼类游动） */
+      var tailU = (q.tx * wFace + gFormW * 0.5) / Math.max(1, gFormW);
+      var sway = Math.sin(t * 2.2 - q.tx * 0.012 + q.wob * 0.3) * (3 + tailU * 12);
       var px, py, al, dsz;
       /* 裸眼 3D：按粒子深度 z 施加视差偏移，近处动得多、远处动得少 */
       if (gPhase === "assemble") {
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
-        px = gX + q.tx * wFace + q.sx * (1 - e) + camX * q.z;
+        px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z;
         py = gBaseY + q.ty + q.sy * (1 - e) + wob + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * e * (0.55 + q.z * 0.45);
       } else if (gPhase === "swim") {
-        px = gX + q.tx * wFace + camX * q.z;
+        px = gX + q.tx * wFace + sway + camX * q.z;
         py = gBaseY + q.ty + wob + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45);
       } else { /* dissolve */
-        px = gX + q.tx * wFace + q.dvx * gPhaseT + camX * q.z;
+        px = gX + q.tx * wFace + sway + q.dvx * gPhaseT + camX * q.z;
         py = gBaseY + q.ty + wob + q.dvy * gPhaseT + camY * q.z * 0.6;
         al = Math.max(0, (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45) * (1 - gPhaseT / 2.0));
       }
@@ -279,8 +285,13 @@
     /* 小幽灵 */
     for (var i = 0; i < ghosts.length; i++) {
       var g = ghosts[i];
-      g.x += g.vx * dt;
-      g.y += g.vy * dt + Math.sin(t * g.bobFreq + g.phase) * g.bobAmp * dt;
+      /* 活体游动：方向随机漫游 + 偶发冲刺 */
+      g.wa += (Math.random() - 0.5) * 2.4 * dt;
+      if (Math.random() < dt * 0.16) { g.dartT = 0.5 + Math.random() * 0.4; }
+      if (g.dartT > 0) { g.dartT -= dt; }
+      var spdNow = g.spd * (g.dartT > 0 ? 2.6 : 1);
+      g.x += Math.cos(g.wa) * spdNow * dt;
+      g.y += Math.sin(g.wa) * 0.6 * spdNow * dt + Math.sin(t * g.bobFreq + g.phase) * g.bobAmp * dt;
       if (g.x < -g.size - 60) { g.x = W + 40; }
       if (g.x > W + g.size + 60) { g.x = -40; }
       if (g.y < -g.size - 60) { g.y = H + 30; }
@@ -288,14 +299,17 @@
       var fade = Math.sin(t * g.fadeFreq * Math.PI * 2 + g.phase);
       var op = g.maxOp * Math.max(0, Math.min(1, fade * 1.7));
       op *= 0.92 + 0.08 * Math.sin(t * 13 + g.phase * 3);
-      var face = g.vx >= 0 ? 1 : -1;
+      var face = Math.cos(g.wa) >= 0 ? 1 : -1;
       var wob = Math.sin(t * g.wobFreq + g.phase) * 14;
+      var rock = Math.sin(t * 2.4 + g.phase) * 3.2;
+      var sq = Math.sin(t * 3.1 + g.phase) * 0.05;
       g.el.style.opacity = op.toFixed(3);
       g.el.style.transform =
         "translate3d(" + (g.x + camX * (1 - g.tier) * 0.5).toFixed(1) + "px," +
         (g.y + camY * (1 - g.tier) * 0.4).toFixed(1) + "px,0)" +
         " perspective(700px) rotateY(" + wob.toFixed(1) + "deg)" +
-        " scaleX(" + face + ")";
+        " rotate(" + rock.toFixed(2) + "deg)" +
+        " scaleX(" + (face * (1 + sq)).toFixed(3) + ") scaleY(" + (1 - sq).toFixed(3) + ")";
     }
 
     /* 巨兽 */
