@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <p class="fb-note reveal">这里是麦茶在各个世界里留下的足迹：一起走过区域的伙伴、罗德岛的干员编队，以及其他世界的存档数据。</p>
+      <p class="fb-note reveal">这里是麦茶在各个世界里留下的足迹：一起走过区域的伙伴、罗德岛的干员编队、PTCG 卡组，以及其他世界的存档数据。</p>
 
       <!-- ══════════════════════════════════════════════════════
            ★ 数据填写区（只改这里！改文字即可，不用动其他地方）★
@@ -84,6 +84,30 @@
         { name: "塞尔达传说：旷野之息", stat: "129 小时", icon: "剑", note: "示例数据·改我：海拉鲁勇者的第 129 小时，还在给呀哈哈摘果子" },
         { name: "阴阳师",               stat: "SSR × 12",  icon: "阴阳", note: "示例数据·改我：非酋改命进行中，下一个六星还没排上日程" }
       ];
+
+      /* ── ⑤ PTCG 卡组（可放多套）──
+         name: 卡组名   format: 赛制（标准赛/扩展赛/开放赛，可空）   record: 战绩（可空）
+         note: 卡组思路一句话（可空）
+         cards: 卡牌列表 —— t 分类（P=宝可梦，T=训练家，E=能量），n 卡名，c 数量，note 备注（可空）
+         页面会自动分类排版并合计张数：凑满 60 显示绿色，差几张照实标出 */
+      var PTCG_DECKS = [
+        {
+          name: "示例卡组 · 喷火龙VMAX（改我）",
+          format: "标准赛",
+          record: "示例数据·改我：店赛 3-1，第一次打进四强",
+          note: "示例数据·改我：二回合一焰 400，就是这套的浪漫。",
+          cards: [
+            { t: "P", n: "喷火龙VMAX", c: 3, note: "王牌" },
+            { t: "P", n: "喷火龙V", c: 2 },
+            { t: "P", n: "小火龙", c: 3 },
+            { t: "P", n: "火恐龙", c: 2 },
+            { t: "T", n: "宝可梦轮换", c: 4 },
+            { t: "T", n: "莉莉艾", c: 2, note: "抽牌" },
+            { t: "E", n: "火能量", c: 14 },
+            { t: "E", n: "双重涡轮能量", c: 4 }
+          ]
+        }
+      ];
       </script>
       <!-- ═══════════════ 数据填写区结束 ═══════════════ -->
 
@@ -115,6 +139,16 @@
           <span class="rule"></span>
         </div>
         <div class="og-grid" id="ogGrid"></div>
+      </section>
+
+      <!-- ④ PTCG 卡组 -->
+      <section class="comments-block reveal">
+        <div class="sec-head">
+          <h2>PTCG 卡组</h2>
+          <span class="mono-tag">DECK.LIST</span>
+          <span class="rule"></span>
+        </div>
+        <div id="deckGrid"></div>
       </section>
     </section>
   </main>
@@ -246,6 +280,42 @@
       ogGrid.appendChild(card);
     });
     if (!ogGrid.children.length) ogGrid.appendChild(el("div", "sc-empty", "> 暂无其他世界存档_"));
+
+    /* ── ④ PTCG 卡组 ── */
+    var deckGrid = document.getElementById("deckGrid");
+    var DECK_CATS = [["P", "宝可梦 POKEMON"], ["T", "训练家 TRAINER"], ["E", "能量 ENERGY"]];
+    (window.PTCG_DECKS || []).forEach(function (d) {
+      var panel = el("div", "deck-panel");
+      var head = el("div", "deck-head");
+      head.appendChild(el("span", "deck-name", d.name || "未命名卡组"));
+      if (d.format) { head.appendChild(el("span", "deck-format", d.format)); }
+      var total = 0;
+      (d.cards || []).forEach(function (c) { total += c.c || 0; });
+      head.appendChild(el("span", "deck-total" + (total === 60 ? " ok" : ""), "合计 " + total + " / 60"));
+      panel.appendChild(head);
+      if (d.record) { panel.appendChild(el("p", "deck-record", "▸ " + d.record)); }
+      if (d.note) { panel.appendChild(el("p", "deck-record", d.note)); }
+      var cols = el("div", "deck-cols");
+      DECK_CATS.forEach(function (cat) {
+        var list = (d.cards || []).filter(function (c) { return c.t === cat[0]; });
+        if (!list.length) { return; }
+        var col = el("div", "deck-cat");
+        col.appendChild(el("h4", null, cat[1]));
+        var ul = el("ul");
+        list.forEach(function (c) {
+          var li = el("li");
+          li.appendChild(el("span", "deck-cnt", (c.c || 1) + "×"));
+          li.appendChild(el("span", null, c.n || "?"));
+          if (c.note) { li.appendChild(el("span", "deck-note", " · " + c.note)); }
+          ul.appendChild(li);
+        });
+        col.appendChild(ul);
+        cols.appendChild(col);
+      });
+      panel.appendChild(cols);
+      deckGrid.appendChild(panel);
+    });
+    if (!deckGrid.children.length) deckGrid.appendChild(el("div", "sc-empty", "> 卡组数据为空——去「数据填写区」添加_"));
   })();
   </script>
   <script src="assets/js/main.js"></script>
