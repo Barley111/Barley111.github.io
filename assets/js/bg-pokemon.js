@@ -232,26 +232,29 @@
     if (!gParts.length || gPhase === "loading" || gPhase === "idle") { return; }
     for (var i = 0; i < gParts.length; i++) {
       var q = gParts[i];
-      var wob = Math.sin(t * 1.5 + q.tx * 0.013 + q.wob) * 7;
+      var wob = Math.sin(t * 1.5 + q.tx * 0.013) * 3.5; /* 身体涟漪：同相行波，不再随机蠕动 */
       var wFace = whaleDir === 1 ? -1 : 1;
-      /* 尾部摆动：行波从头向尾传导，越靠尾部摆幅越大（真实鱼类游动） */
+      /* 鲸式推进：前段身体近乎刚体，摆幅集中在尾段沿身体向后传导 */
       var tailU = (q.tx * wFace + gFormW * 0.5) / Math.max(1, gFormW);
-      var sway = Math.sin(t * 2.2 - q.tx * 0.012 + q.wob * 0.3) * (3 + tailU * 12);
+      var f = Math.max(0, Math.min(1, (tailU - 0.42) / 0.58));
+      f = f * f * (3 - 2 * f); /* smoothstep，头部摆幅≈0 */
+      var sway = Math.sin(t * 1.9 - q.tx * 0.010 + q.wob * 0.15) * (1 + f * 15);
+      var fluke = f * Math.sin(t * 1.9 - q.tx * 0.010) * 6; /* 尾鳍垂直击水 */
       var px, py, al, dsz;
       /* 裸眼 3D：按粒子深度 z 施加视差偏移，近处动得多、远处动得少 */
       if (gPhase === "assemble") {
         var p = Math.min(1, Math.max(0, (gPhaseT - q.delay) / 1.5));
         var e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
         px = gX + q.tx * wFace + sway + q.sx * (1 - e) + camX * q.z;
-        py = gBaseY + q.ty + q.sy * (1 - e) + wob + camY * q.z * 0.6;
+        py = gBaseY + q.ty + q.sy * (1 - e) + wob + fluke + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * e * (0.55 + q.z * 0.45);
       } else if (gPhase === "swim") {
         px = gX + q.tx * wFace + sway + camX * q.z;
-        py = gBaseY + q.ty + wob + camY * q.z * 0.6;
+        py = gBaseY + q.ty + wob + fluke + camY * q.z * 0.6;
         al = (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45);
       } else { /* dissolve */
         px = gX + q.tx * wFace + sway + q.dvx * gPhaseT + camX * q.z;
-        py = gBaseY + q.ty + wob + q.dvy * gPhaseT + camY * q.z * 0.6;
+        py = gBaseY + q.ty + wob + fluke + q.dvy * gPhaseT + camY * q.z * 0.6;
         al = Math.max(0, (0.15 + q.br * 0.5) * (0.55 + q.z * 0.45) * (1 - gPhaseT / 2.0));
       }
       if (al <= 0.02) { continue; }
@@ -265,6 +268,84 @@
       gctx.fillRect(px, py, dsz, dsz);
     }
     gctx.globalAlpha = 1;
+  }
+
+  /* ══════════ ③ 鼠标特效层：光标拖尾 + 点击迸裂 ══════════ */
+  var fxCanvas = document.createElement("canvas");
+  fxCanvas.id = "pk-fx";
+  document.body.appendChild(fxCanvas);
+  var fctx = fxCanvas.getContext("2d");
+  function sizeFx() {
+    fxCanvas.width = W * dpr;
+    fxCanvas.height = H * dpr;
+    fxCanvas.style.width = W + "px";
+    fxCanvas.style.height = H + "px";
+    fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  sizeFx();
+
+  var trail = [];  /* 光标拖尾 / 点击迸裂粒子 */
+  var rings = [];  /* 点击涟漪 */
+
+  window.addEventListener("mousemove", function (e) {
+    trail.push({
+      x: e.clientX, y: e.clientY,
+      vx: (Math.random() - 0.5) * 30, vy: (Math.random() - 0.5) * 30 - 10,
+      life: 0.65 + Math.random() * 0.4,
+      size: 1 + Math.random() * 1.8,
+      white: Math.random() < 0.25
+    });
+    if (trail.length > 340) { trail.splice(0, trail.length - 340); }
+  });
+
+  window.addEventListener("pointerdown", function (e) {
+    if (e.button !== 0) { return; }
+    var t3 = e.target;
+    if (t3 && t3.closest && t3.closest("a,button,input,textarea,select,label,summary")) { return; }
+    rings.push({ x: e.clientX, y: e.clientY, r: 4, life: 0.55 });
+    for (var i = 0; i < 26; i++) {
+      var ang = Math.random() * Math.PI * 2;
+      var sp2 = 50 + Math.random() * 190;
+      trail.push({
+        x: e.clientX, y: e.clientY,
+        vx: Math.cos(ang) * sp2, vy: Math.sin(ang) * sp2,
+        life: 0.5 + Math.random() * 0.5,
+        size: 1.2 + Math.random() * 2,
+        white: Math.random() < 0.3
+      });
+    }
+    if (trail.length > 460) { trail.splice(0, trail.length - 460); }
+  });
+
+  function fxDraw(dt) {
+    fctx.clearRect(0, 0, W, H);
+    for (var i = trail.length - 1; i >= 0; i--) {
+      var q = trail[i];
+      q.life -= dt;
+      if (q.life <= 0) { trail.splice(i, 1); continue; }
+      q.x += q.vx * dt;
+      q.y += q.vy * dt;
+      q.vx *= (1 - 1.6 * dt);
+      q.vy *= (1 - 1.6 * dt);
+      q.vy -= 22 * dt; /* 微微上飘，像信号余辉 */
+      var a = Math.min(1, q.life / 0.45) * 0.85;
+      fctx.globalAlpha = a;
+      fctx.fillStyle = q.white ? "#eafff9" : "#39c5bb";
+      fctx.fillRect(q.x, q.y, q.size, q.size);
+    }
+    for (var j = rings.length - 1; j >= 0; j--) {
+      var r2 = rings[j];
+      r2.life -= dt;
+      r2.r += 150 * dt;
+      if (r2.life <= 0) { rings.splice(j, 1); continue; }
+      fctx.globalAlpha = Math.max(0, r2.life / 0.55) * 0.6;
+      fctx.strokeStyle = "#39c5bb";
+      fctx.lineWidth = 1.5;
+      fctx.beginPath();
+      fctx.arc(r2.x, r2.y, r2.r, 0, Math.PI * 2);
+      fctx.stroke();
+    }
+    fctx.globalAlpha = 1;
   }
 
   /* ══════════ 主循环 ══════════ */
@@ -316,6 +397,9 @@
     giantUpdate(dt, t);
     giantDraw(t);
 
+    /* 鼠标特效 */
+    fxDraw(dt);
+
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -324,5 +408,6 @@
     W = window.innerWidth;
     H = window.innerHeight;
     sizeGiant();
+    sizeFx();
   });
 })();

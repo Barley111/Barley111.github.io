@@ -776,3 +776,4 @@ code, pre { font-family: var(--mono); }
 }
 @media (prefers-reduced-motion: reduce) { #pk-bg { display: none; } }
 #pk-bg #pk-giant { position: absolute; top: 0; left: 0; pointer-events: none; }
+#pk-fx { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
