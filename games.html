@@ -63,6 +63,7 @@
            nickname: 昵称，没有就留空 ""
            note: 一句话介绍（可空）
            types: 属性 1~2 个：一般/火/水/草/电/冰/格斗/毒/地面/飞行/超能力/虫/岩石/幽灵/龙/恶/钢/妖精 */
+      /* POKEMON:AUTO START（本区块由管理终端读写，手动修改会在下次保存时被覆盖） */
       var POKEMON_TEAMS = [
         {
           title: "冠军队伍 · 朱",
@@ -86,26 +87,31 @@
           ]
         }
       ];
+      /* POKEMON:AUTO END */
 
       /* ── ② 明日方舟干员编队 ──
          name: 干员名   elite: 精英化(0/1/2)   level: 等级(数字)
          cls:  职业（先锋/近卫/重装/狙击/术师/医疗/辅助/特种）
          pot:  潜能(1~6，没有就填 1)   avatar: 头像图片链接(没有就留空 "")
          note: 一句话（干员和你的 story）*/
+      /* AK:AUTO START（本区块由管理终端读写，手动修改会在下次保存时被覆盖） */
       var ARKNIGHTS = [
         { name: "能天使", elite: 2, level: 90, cls: "狙击", pot: 5, avatar: "", note: "示例数据·改我：德克萨斯，做得到吗？" },
         { name: "银灰",   elite: 2, level: 90, cls: "近卫", pot: 1, avatar: "", note: "示例数据·改我：真银斩，清屏键" },
         { name: "凯尔希", elite: 2, level: 90, cls: "医疗", pot: 1, avatar: "", note: "示例数据·改我：Mon3tr，上！」" },
         { name: "陈",     elite: 2, level: 85, cls: "近卫", pot: 1, avatar: "", note: "示例数据·改我：拔刀！赤霄一刀流" }
       ];
+      /* AK:AUTO END */
 
       /* ── ③ 其他世界档案（塞尔达 / 阴阳师 / 任意游戏，数量随意）──
          name: 游戏/世界名   stat: 一个最想炫耀的数据（时长/进度/稀有度…）
          note: 一句话存档日记   icon: 一个代表字或 emoji */
+      /* OTHERS:AUTO START（本区块由管理终端读写，手动修改会在下次保存时被覆盖） */
       var OTHER_GAMES = [
         { name: "塞尔达传说：旷野之息", stat: "129 小时", icon: "剑", note: "示例数据·改我：海拉鲁勇者的第 129 小时，还在给呀哈哈摘果子" },
         { name: "阴阳师",               stat: "SSR × 12",  icon: "阴阳", note: "示例数据·改我：非酋改命进行中，下一个六星还没排上日程" }
       ];
+      /* OTHERS:AUTO END */
 
       /* ── ⑤ PTCG 卡组（可放多套）──
          name: 卡组名   format: 赛制（标准赛/扩展赛/开放赛，可空）   record: 战绩（可空）
