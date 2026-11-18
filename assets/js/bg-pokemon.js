@@ -82,9 +82,10 @@
     });
   }
 
-  GHOST_DEX.forEach(function (d) { spawnGhost(d); });
+  /* v1.22：小型信号幽灵已按用户要求移除（跳动的宝可梦），巨兽粒子系统保留 */
+  /* GHOST_DEX.forEach(function (d) { spawnGhost(d); });
   var gExtra = (W < 700 ? 4 : 10) - GHOST_DEX.length;
-  for (var gi = 0; gi < gExtra; gi++) { spawnGhost(GHOST_DEX[Math.floor(Math.random() * GHOST_DEX.length)]); }
+  for (var gi = 0; gi < gExtra; gi++) { spawnGhost(GHOST_DEX[Math.floor(Math.random() * GHOST_DEX.length)]); } */
 
   /* ══════════ ② 巨型深海巨兽（Canvas 粒子系统） ══════════ */
   var GIANTS = [321, 130, 382, 149]; /* 吼鲸王 / 暴鲤龙 / 盖欧卡 / 快龙 */
