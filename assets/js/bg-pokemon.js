@@ -17,6 +17,25 @@
   layer.setAttribute("aria-hidden", "true");
   document.body.appendChild(layer);
 
+  /* v1.25：萌二主题的日式美少女水印（手绘 SVG 剪影，仅 moe 主题显示） */
+  var girl = document.createElement("div");
+  girl.id = "pk-girl";
+  girl.setAttribute("aria-hidden", "true");
+  girl.innerHTML =
+    '<svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="pkGirlG" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#ffc4da"/><stop offset="0.55" stop-color="#ff9cc0"/><stop offset="1" stop-color="#ff7eb0"/>' +
+    '</linearGradient></defs>' +
+    '<g fill="url(#pkGirlG)">' +
+    '<path d="M200 44 C 158 44 132 82 133 122 C 134 150 144 172 156 186 L 244 186 C 256 172 266 148 265 120 C 263 82 240 44 200 44 Z"/>' +
+    '<path d="M137 108 C 96 128 62 190 58 268 C 55 330 40 396 18 440 C 60 436 104 402 118 348 C 134 288 128 210 168 158 Z"/>' +
+    '<path d="M263 108 C 304 128 340 192 344 270 C 347 332 362 398 384 442 C 342 438 298 404 284 350 C 268 290 274 212 234 158 Z"/>' +
+    '<path d="M196 30 C 192 16 204 8 214 14 C 206 20 208 30 214 38 Z"/>' +
+    '<path d="M156 186 C 148 204 150 222 160 238 L 240 238 C 250 222 252 204 244 186 Z"/>' +
+    '<path d="M160 238 C 136 290 132 356 142 428 C 158 444 176 452 200 454 C 224 452 242 444 258 428 C 268 356 264 290 240 238 Z"/>' +
+    '</g></svg>';
+  layer.appendChild(girl);
+
   var W = window.innerWidth;
   var H = window.innerHeight;
 
@@ -202,6 +221,7 @@
   }
 
   function giantUpdate(dt, t) {
+    if (document.documentElement.dataset.theme === "moe") { return; }
     gPhaseT += dt;
     if (gPhase === "idle" && t >= gNextT) {
       var dex = GIANTS[gIdx % GIANTS.length];
@@ -247,6 +267,7 @@
 
   function giantDraw(t) {
     gctx.clearRect(0, 0, W, H);
+    if (document.documentElement.dataset.theme === "moe") { return; }
     if (!gParts.length || gPhase === "loading" || gPhase === "idle") { return; }
     /* 飞行姿态：随爬升/俯冲产生俯仰角，叠加转弯侧倾 */
     var dySlope = H * (0.085 * 0.17 * Math.cos(t * 0.17 + 1.2) + 0.045 * 0.41 * Math.cos(t * 0.41));
