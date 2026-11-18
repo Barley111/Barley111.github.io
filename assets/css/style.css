@@ -935,7 +935,7 @@ code, pre { font-family: var(--mono); }
 [data-theme="moe"] #pk-bg img { filter: drop-shadow(0 0 8px rgba(255, 126, 176, 0.55)); }
 #pk-girl { position: absolute; right: -30px; bottom: -20px; width: 78vmin; max-width: 780px; display: none; pointer-events: none; }
 #pk-girl svg { width: 100%; height: auto; display: block; }
-[data-theme="moe"] #pk-girl { display: block; opacity: 0.16; animation: pk-girl-float 9s ease-in-out infinite; }
+[data-theme="moe"] #pk-girl { display: block; opacity: 0.3; animation: pk-girl-float 9s ease-in-out infinite; filter: drop-shadow(0 0 22px rgba(57, 197, 187, 0.45)); }
 @keyframes pk-girl-float {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-16px) rotate(-1.6deg); }
