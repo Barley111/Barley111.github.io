@@ -933,14 +933,16 @@ code, pre { font-family: var(--mono); }
 [data-theme="moe"] .nav { background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(8px); }
 [data-theme="moe"] .rail { background: rgba(255, 240, 247, 0.85); }
 [data-theme="moe"] #pk-bg img { filter: drop-shadow(0 0 8px rgba(255, 126, 176, 0.55)); }
-#pk-girl { position: absolute; right: -30px; bottom: -20px; width: 78vmin; max-width: 780px; display: none; pointer-events: none; }
-#pk-girl svg { width: 100%; height: auto; display: block; }
-[data-theme="moe"] #pk-girl { display: block; opacity: 0.3; animation: pk-girl-float 9s ease-in-out infinite; filter: drop-shadow(0 0 22px rgba(57, 197, 187, 0.45)); }
+[data-theme="moe"] .footer-inner::after { content: "※ Hatsune Miku illustration © CFM"; display: block; font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 6px; letter-spacing: 0.1em; }
+#pk-girl { position: absolute; right: 56px; bottom: 0; display: none; pointer-events: none; }
+#pk-girl img { width: auto; height: 258px; display: block; image-rendering: pixelated; }
+#pk-bg #pk-girl img { position: static; top: auto; left: auto; opacity: 1; filter: none; }
+[data-theme="moe"] #pk-girl { display: block; opacity: 0.92; animation: pk-girl-float 7s ease-in-out infinite; filter: drop-shadow(0 4px 14px rgba(57, 197, 187, 0.4)); }
 @keyframes pk-girl-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-16px) rotate(-1.6deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
 }
-@media (max-width: 700px) { [data-theme="moe"] #pk-girl { width: 115vmin; right: -60px; opacity: 0.13; } }
+@media (max-width: 700px) { [data-theme="moe"] #pk-girl img { height: 190px; } }
 
 /* ---------- v1.6 背景信号幽灵（游动的全息宝可梦） ---------- */
 #pk-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }

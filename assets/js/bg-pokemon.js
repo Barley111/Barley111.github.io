@@ -21,24 +21,10 @@
   var girl = document.createElement("div");
   girl.id = "pk-girl";
   girl.setAttribute("aria-hidden", "true");
-  girl.innerHTML =
-    '<svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg">' +
-    '<defs><linearGradient id="pkGirlG" x1="0" y1="0" x2="0" y2="1">' +
-    '<stop offset="0" stop-color="#7fe9e0"/><stop offset="0.5" stop-color="#39c5bb"/><stop offset="1" stop-color="#2a9d94"/>' +
-    '</linearGradient></defs>' +
-    '<g fill="url(#pkGirlG)">' +
-    '<path d="M200 42 C 156 42 130 78 132 118 C 133 144 142 164 152 178 L 248 178 C 258 164 268 142 266 116 C 264 78 242 42 200 42 Z"/>' +
-    '<path d="M126 100 C 108 112 96 132 90 158 L 112 148 C 120 126 132 110 148 100 Z"/>' +
-    '<path d="M274 100 C 292 112 304 132 310 158 L 288 148 C 280 126 268 110 252 100 Z"/>' +
-    '<rect x="112" y="118" width="18" height="26" rx="3"/>' +
-    '<rect x="270" y="118" width="18" height="26" rx="3"/>' +
-    '<path d="M132 108 C 100 130 84 190 80 260 C 76 340 62 430 40 520 C 74 512 108 470 118 400 C 130 320 122 220 158 158 Z"/>' +
-    '<path d="M268 108 C 300 130 316 190 320 260 C 324 340 338 430 360 520 C 326 512 292 470 282 400 C 270 320 278 220 242 158 Z"/>' +
-    '<path d="M152 178 C 144 196 146 214 156 230 L 244 230 C 254 214 256 196 248 178 Z"/>' +
-    '<path d="M156 230 C 134 268 130 310 142 350 C 156 366 174 374 200 376 C 226 374 244 366 258 350 C 270 310 266 268 244 230 Z"/>' +
-    '<path d="M170 376 L 166 470 L 180 470 L 184 380 Z"/>' +
-    '<path d="M230 376 L 234 470 L 220 470 L 216 380 Z"/>' +
-    '</g></svg>';
+  girl.innerHTML = '<img src="assets/media/miku.png" alt="">';
+  girl.querySelector("img").addEventListener("error", function () {
+    girl.style.display = "none"; /* 图片缺失时静默隐藏（终端主题本就隐藏） */
+  });
   layer.appendChild(girl);
 
   var W = window.innerWidth;
