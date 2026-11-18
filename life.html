@@ -48,6 +48,16 @@
 
       <p class="fb-note reveal">不正式、不排版、想到什么记什么——日常的碎片都在这条时间轴上。照片放本地文件夹、视频传 B 站拿 BV 号，都能挂进来。</p>
 
+      <!-- ⚔ 赌约墙 -->
+      <section class="comments-block reveal" style="margin-top: 26px;">
+        <div class="sec-head">
+          <h2>赌约墙</h2>
+          <span class="mono-tag">THE.BET</span>
+          <span class="rule"></span>
+        </div>
+        <div id="betPanel"></div>
+      </section>
+
       <!-- 生活时间轴 -->
       <section class="comments-block reveal" style="margin-top: 26px;">
         <div class="sec-head">
@@ -108,6 +118,19 @@
     }
   ];
   /* LIFE:AUTO END */
+
+  /* ── ⚔ 赌约墙（和舍友老季的五年之约）──
+     到期后手动改 status 和 result 宣布赢家：status: "已开盘", result: "赢家：麦茶（老季请客 🍜）" */
+  var BET_DATA = {
+    title: "俄乌停战预测之赌",
+    left: { name: "麦茶", view: "5 年内，俄罗斯和乌克兰无法达成停战" },
+    right: { name: "老季", view: "5 年内，俄乌双方会达成停战" },
+    stake: "输的人请赢家吃一顿大餐 🍜",
+    startDate: "2026-11-19",
+    endDate: "2031-11-19",
+    status: "进行中",
+    result: ""
+  };
   </script>
   <!-- ═══════════════ 数据填写区结束 ═══════════════ -->
 
@@ -193,6 +216,71 @@
       box.appendChild(node);
     });
     if (!box.children.length) { box.appendChild(el("div", "sc-empty", "> 时间轴空空如也——去「数据填写区」记录第一条_")); }
+
+    /* ── ⚔ 赌约墙 ── */
+    var betBox = document.getElementById("betPanel");
+    if (betBox && window.BET_DATA) {
+      var B = window.BET_DATA;
+      function bParse(s) {
+        var p = String(s || "").split("-");
+        return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null;
+      }
+      var bs = bParse(B.startDate), be = bParse(B.endDate);
+      var now3 = new Date();
+      var t0 = new Date(now3.getFullYear(), now3.getMonth(), now3.getDate());
+      var leftDays = be ? Math.round((be - t0) / 86400000) : 0;
+      var gonePct = bs && be && be > bs ? Math.min(100, Math.max(0, Math.round(((t0 - bs) / (be - bs)) * 100))) : 0;
+
+      var panel = el("div", "bet-panel");
+      var head = el("div", "bet-head");
+      head.appendChild(el("span", "bet-title", "⚔ " + (B.title || "赌约")));
+      head.appendChild(el("span", "bet-status", B.status || "进行中"));
+      panel.appendChild(head);
+
+      var vs = el("div", "bet-vs");
+      var sl = el("div", "bet-side me");
+      sl.appendChild(el("div", "bet-name", "◆ " + (B.left.name || "")));
+      sl.appendChild(el("div", "bet-view", B.left.view || ""));
+      vs.appendChild(sl);
+      vs.appendChild(el("div", "bet-bolt", "⚡"));
+      var sr = el("div", "bet-side");
+      sr.appendChild(el("div", "bet-name", "◆ " + (B.right.name || "")));
+      sr.appendChild(el("div", "bet-view", B.right.view || ""));
+      vs.appendChild(sr);
+      panel.appendChild(vs);
+
+      panel.appendChild(el("div", "bet-stake", "赌注：" + (B.stake || "")));
+
+      var datesRow = el("div", "bet-dates");
+      datesRow.appendChild(el("span", null, "立约 " + (B.startDate || "")));
+      datesRow.appendChild(el("span", null, "开盘 " + (B.endDate || "")));
+      panel.appendChild(datesRow);
+      var track = el("div", "bet-track");
+      var fill = el("div", "bet-fill");
+      fill.style.width = gonePct + "%";
+      track.appendChild(fill);
+      panel.appendChild(track);
+
+      var crow = el("div", "bet-count-row");
+      if (leftDays > 0) {
+        crow.appendChild(el("span", "bet-count", String(leftDays)));
+        crow.appendChild(el("span", "bet-count-unit", "天后开盘 · 五年之约已履行 " + gonePct + "%"));
+      } else if (leftDays === 0) {
+        crow.appendChild(el("span", "bet-count", "今天"));
+        crow.appendChild(el("span", "bet-count-unit", "开盘日 · 见证时刻到了"));
+      } else {
+        crow.appendChild(el("span", "bet-count", "已开盘"));
+        crow.appendChild(el("span", "bet-count-unit", Math.abs(leftDays) + " 天前到期"));
+      }
+      panel.appendChild(crow);
+
+      if (B.result) {
+        panel.appendChild(el("div", "bet-result", "🏆 " + B.result));
+      } else if (leftDays < 0) {
+        panel.appendChild(el("div", "bet-result", "已到开盘日——该请客的请客，该立新赌约的立新赌约。"));
+      }
+      betBox.appendChild(panel);
+    }
 
     /* B 站播放器惰性加载：滚动到附近才真正拉起 iframe，不拖慢页面 */
     var vio = new IntersectionObserver(function (entries) {
