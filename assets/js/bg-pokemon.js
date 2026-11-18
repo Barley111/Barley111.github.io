@@ -293,12 +293,13 @@
       if (al <= 0.02) { continue; }
       /* 半调网点：亮处粒子大而密，暗处小而疏 */
       dsz = (1.0 + q.br * 1.8) * (0.7 + q.z * 0.8);
-      /* 立绘原色 × 青色全息色调混合 */
+      /* 立绘原色 × 全息色调混合（跟随站点主题：终端青 / 萌二樱粉） */
+      var PC = document.documentElement.dataset.theme === "moe" ? [255, 126, 176] : [57, 197, 187];
       gctx.globalAlpha = al;
       gctx.fillStyle = "rgb(" +
-        Math.round(q.r * 0.4 + 57 * 0.6) + "," +
-        Math.round(q.g * 0.4 + 197 * 0.6) + "," +
-        Math.round(q.b * 0.4 + 187 * 0.6) + ")";
+        Math.round(q.r * 0.4 + PC[0] * 0.6) + "," +
+        Math.round(q.g * 0.4 + PC[1] * 0.6) + "," +
+        Math.round(q.b * 0.4 + PC[2] * 0.6) + ")";
       gctx.beginPath();
       gctx.arc(px, py, dsz, 0, Math.PI * 2);
       gctx.fill();
