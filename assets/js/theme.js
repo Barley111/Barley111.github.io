@@ -1,1 +1,1 @@
-window.SITE_THEME = "moe";
+window.SITE_THEME = "terminal";
