@@ -223,6 +223,31 @@
   .score-form .err { font-size: 11px; color: #ff9b8a; flex-basis: 100%; display: none; }
   .score-form .err.show { display: block; }
   .btn.small { padding: 7px 12px; font-size: 11px; }
+
+  /* ---------- 云同步 ---------- */
+  .sync-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--dim); margin-right: 6px; vertical-align: 1px;
+  }
+  .sync-dot.ok { background: var(--miku); box-shadow: 0 0 7px var(--miku); }
+  .sync-dot.busy { background: #ffd479; animation: syncPulse 1.2s infinite; }
+  .sync-dot.err { background: #ff6b5e; box-shadow: 0 0 7px #ff6b5e; }
+  @keyframes syncPulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  .sync-state {
+    margin-top: 12px; padding: 9px 12px; border: 1px dashed var(--line);
+    font-family: var(--mono); font-size: 12px; color: var(--dim); letter-spacing: 1px; line-height: 1.7;
+    word-break: break-all;
+  }
+  .sync-toast {
+    position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+    z-index: 30; display: none; align-items: center;
+    font-family: var(--sans); font-size: 12px; letter-spacing: 1px;
+    color: #eafffb; background: rgba(12, 19, 32, 0.96);
+    border: 1px solid var(--line-strong); padding: 10px 16px; cursor: pointer;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    box-shadow: 0 0 22px rgba(57, 197, 187, .22);
+  }
+  .sync-toast.show { display: inline-flex; }
   .btn.danger { color: #ff9b8a; border-color: rgba(255,155,138,0.45); }
   .btn.danger:hover { background: rgba(255,155,138,0.12); color: #ffc9bd; }
 
@@ -440,10 +465,11 @@
         <div id="now-date">--</div>
         <div id="now-time">--:--:--</div>
       </div>
+      <button class="btn" id="btn-sync"><span class="sync-dot" id="sync-dot"></span>同步</button>
+      <button class="btn" id="btn-settings">⚙ 设置</button>
       <!-- [BLOG-EMBED START] 挂进博客时的返回入口，移出博客时从 START 到 END 整段删除即可 -->
       <a class="btn" href="../index.html">◂ 信号站</a>
       <!-- [BLOG-EMBED END] -->
-      <button class="btn" id="btn-settings">⚙ 设置</button>
     </div>
   </header>
 
@@ -546,6 +572,30 @@
   </div>
 </div>
 
+<!-- 云同步面板 -->
+<div class="mask" id="sync-mask">
+  <div class="panel">
+    <h3>云同步 · 手机电脑互通</h3>
+    <p class="panel-sub">// CLOUD.SYNC — 两端填同一串同步码</p>
+    <div class="field">
+      <label>同步码</label>
+      <input id="sync-code-input" type="text" maxlength="24" placeholder="如 SIG-8F3K-2QDP" autocomplete="off" spellcheck="false">
+    </div>
+    <p class="sync-state" id="sync-state">未设置</p>
+    <div class="panel-actions">
+      <button class="btn" id="btn-sync-gen">生成新码</button>
+      <button class="btn" id="btn-sync-now">立即双向同步</button>
+      <button class="btn solid" id="btn-sync-save">保存并同步</button>
+      <button class="btn" id="btn-sync-close">关闭</button>
+    </div>
+    <p class="tip">用法:电脑上点「生成新码 → 保存并同步」,手机上打开本页点「同步」填同一串码,之后两边的打卡、分数、积分就共用同一份云端数据。</p>
+    <p class="tip">规则:谁最后改就以谁为准(整份快照覆盖)。所以尽量别在两台设备上同时改;另一台设备打开或切回前台时会自动拉取最新。</p>
+    <p class="tip">同步码相当于钥匙,知道它的人就能读到这份数据,别外传。</p>
+  </div>
+</div>
+
+<button class="sync-toast" id="sync-toast">☁ 云端有新数据 · 点此同步</button>
+
 <div class="scanlines"></div>
 
 <script>
@@ -601,6 +651,7 @@
 
   function saveExams(arr) {
     try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch (e) {}
+    cloudTouch();
   }
 
   var exams = getExams();
@@ -821,6 +872,7 @@
   var scoreData = loadScoreData();
   function saveScoreData() {
     try { localStorage.setItem(LS_SCORES, JSON.stringify(scoreData)); } catch (e) {}
+    cloudTouch();
   }
 
   function sortAsc(recs) {
@@ -1206,6 +1258,7 @@
   var sprintState = loadSprint();
   function saveSprint() {
     try { localStorage.setItem(LS_SPRINT, JSON.stringify(sprintState)); } catch (e) {}
+    cloudTouch();
   }
 
   var LS_PAGES = "signal-countdown-sprint-pages-v1";
@@ -1225,6 +1278,7 @@
   var sprintPages = loadSprintPages();
   function saveSprintPages() {
     try { localStorage.setItem(LS_PAGES, JSON.stringify(sprintPages)); } catch (e) {}
+    cloudTouch();
   }
 
   function sprintDay(dayNo) { return SPRINT[dayNo - 1]; }
@@ -1469,7 +1523,7 @@
     return base;
   }
   var pointsData = loadPoints();
-  function savePoints() { try { localStorage.setItem(LS_POINTS, JSON.stringify(pointsData)); } catch (e) {} }
+  function savePoints() { try { localStorage.setItem(LS_POINTS, JSON.stringify(pointsData)); } catch (e) {} cloudTouch(); }
 
   function pointsBalance() {
     var s = 0;
@@ -1759,10 +1813,265 @@
 
   document.getElementById("btn-reset").addEventListener("click", function () {
     try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    cloudTouch();
     exams = JSON.parse(JSON.stringify(DEFAULT_EXAMS));
     renderSkeleton(); collectCards(); update();
     buildForms();
     msg.classList.remove("show");
+  });
+
+  // ---------- 云同步(Supabase) ----------
+  var CLOUD_URL = "https://zfmdkjktrpqzzbzhwozi.supabase.co";
+  var CLOUD_KEY = "sb_publishable_C6oCK1FrzeJfTp83ibM7Lg_C-pJGJU6";
+  var CLOUD_TABLE = CLOUD_URL + "/rest/v1/countdown_state";
+  var LS_CLOUD = "signal-countdown-cloud-v1";
+
+  var cloudMeta = { code: "", localTs: 0, remoteTs: 0 };
+  var cloudTimer = null;
+  var cloudErr = 0;
+
+  function cloudErrText() {
+    if (cloudErr === 404) return "云端还没有 countdown_state 表 · 先在 Supabase 执行一次建表 SQL（见 README 或同目录的建表 SQL 文件）";
+    if (cloudErr === 401 || cloudErr === 403) return "云端拒绝访问 · 检查建表时的 RLS 策略是否允许 anon 读写";
+    return "连不上云端 · 离线或网络不通，改动已保存在本机";
+  }
+
+  (function loadCloudMeta() {
+    try {
+      var o = JSON.parse(localStorage.getItem(LS_CLOUD) || "{}");
+      if (o && typeof o === "object") {
+        if (typeof o.code === "string") cloudMeta.code = o.code.trim().toUpperCase();
+        cloudMeta.localTs = Number(o.localTs) || 0;
+        cloudMeta.remoteTs = Number(o.remoteTs) || 0;
+      }
+    } catch (e) {}
+  })();
+
+  function saveCloudMeta() {
+    try { localStorage.setItem(LS_CLOUD, JSON.stringify(cloudMeta)); } catch (e) {}
+  }
+
+  function clockText(ts) {
+    var d = new Date(ts);
+    return pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function cloudStatus(text, state) {
+    var box = document.getElementById("sync-state");
+    if (box) box.textContent = text;
+    var dot = document.getElementById("sync-dot");
+    if (dot) dot.className = "sync-dot" + (state ? " " + state : "");
+  }
+
+  function syncToastShow(text) {
+    var t = document.getElementById("sync-toast");
+    if (!t) return;
+    t.textContent = text;
+    t.classList.add("show");
+  }
+  function syncToastHide() {
+    var t = document.getElementById("sync-toast");
+    if (t) t.classList.remove("show");
+  }
+
+  function cloudReq(method, path, body, extra) {
+    var h = {
+      "apikey": CLOUD_KEY,
+      "Authorization": "Bearer " + CLOUD_KEY,
+      "Content-Type": "application/json"
+    };
+    if (extra) for (var k in extra) if (extra.hasOwnProperty(k)) h[k] = extra[k];
+    var opt = { method: method, headers: h, cache: "no-store" };
+    if (body) opt.body = JSON.stringify(body);
+    return fetch(CLOUD_TABLE + path, opt);
+  }
+
+  function cloudSnapshot() {
+    return {
+      v: 1,
+      updated: cloudMeta.localTs || Date.now(),
+      exams: exams,
+      scores: scoreData,
+      sprint: sprintState,
+      pages: sprintPages,
+      points: pointsData
+    };
+  }
+
+  // 返回 {snap} / {missing:true} / {err:true}
+  function cloudPull() {
+    if (!cloudMeta.code) return Promise.resolve({ missing: true });
+    return cloudReq("GET", "?select=payload&code=eq." + encodeURIComponent(cloudMeta.code))
+      .then(function (r) {
+        if (!r.ok) { var e1 = new Error("HTTP " + r.status); e1.status = r.status; throw e1; }
+        return r.json();
+      })
+      .then(function (rows) {
+        if (!rows || !rows.length) return { missing: true };
+        var p = rows[0].payload;
+        if (!p || typeof p !== "object") return { missing: true };
+        return { snap: p };
+      })
+      .catch(function (e) { cloudErr = (e && e.status) ? e.status : 0; return { err: true }; });
+  }
+
+  function cloudPush() {
+    if (!cloudMeta.code) return Promise.resolve(false);
+    var snap = cloudSnapshot();
+    return cloudReq("POST", "?on_conflict=code",
+      { code: cloudMeta.code, payload: snap, updated_at: new Date(snap.updated).toISOString() },
+      { "Prefer": "resolution=merge-duplicates,return=minimal" })
+      .then(function (r) {
+        if (!r.ok) { var e2 = new Error("HTTP " + r.status); e2.status = r.status; throw e2; }
+        cloudMeta.remoteTs = snap.updated;
+        saveCloudMeta();
+        cloudStatus("已同步 " + clockText(snap.updated) + " · 码 " + cloudMeta.code, "ok");
+        syncToastHide();
+        return true;
+      })
+      .catch(function (e) {
+        cloudErr = (e && e.status) ? e.status : 0;
+        cloudStatus(cloudErrText(), "err");
+        return false;
+      });
+  }
+
+  function cloudApply(snap) {
+    try {
+      if (snap.exams) localStorage.setItem(LS_KEY, JSON.stringify(snap.exams));
+      if (snap.scores) localStorage.setItem(LS_SCORES, JSON.stringify(snap.scores));
+      if (snap.sprint) localStorage.setItem(LS_SPRINT, JSON.stringify(snap.sprint));
+      if (snap.pages) localStorage.setItem(LS_PAGES, JSON.stringify(snap.pages));
+      if (snap.points) localStorage.setItem(LS_POINTS, JSON.stringify(snap.points));
+    } catch (e) {}
+    var u = Number(snap.updated) || Date.now();
+    cloudMeta.localTs = u;
+    cloudMeta.remoteTs = u;
+    saveCloudMeta();
+  }
+
+  // 本地每次保存后调用：打时间戳 + 延时推送
+  function cloudTouch() {
+    if (!cloudMeta) return;
+    cloudMeta.localTs = Date.now();
+    saveCloudMeta();
+    if (!cloudMeta.code) return;
+    if (cloudTimer) clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(function () { cloudTimer = null; cloudPush(); }, 800);
+  }
+
+  // 打开页面时:云端比本地新 → 拉下来;本地比云端新 → 推上去
+  function cloudStart() {
+    if (!cloudMeta.code) {
+      cloudStatus("未设置 · 点右上「同步」填一串同步码，手机和电脑就互通了", "");
+      return;
+    }
+    cloudStatus("正在与云端核对…", "busy");
+    cloudPull().then(function (res) {
+      if (res.err) { cloudStatus(cloudErrText(), "err"); return; }
+      if (res.missing) { cloudPush(); return; }
+      var remote = Number(res.snap.updated) || 0;
+      if (remote > cloudMeta.localTs) { cloudApply(res.snap); location.reload(); return; }
+      if (cloudMeta.localTs > remote) { cloudPush(); return; }
+      cloudMeta.remoteTs = remote;
+      saveCloudMeta();
+      cloudStatus("已同步 " + clockText(remote) + " · 码 " + cloudMeta.code, "ok");
+    });
+  }
+
+  // 运行中定时核对:另一台设备改过就提示同步
+  function cloudPoll() {
+    if (!cloudMeta.code) return;
+    if (Date.now() - (cloudMeta.localTs || 0) < 15000) return;
+    cloudPull().then(function (res) {
+      if (res.err || !res.snap) return;
+      var remote = Number(res.snap.updated) || 0;
+      if (remote > (cloudMeta.remoteTs || 0) && remote > cloudMeta.localTs) {
+        cloudMeta.remoteTs = remote;
+        saveCloudMeta();
+        syncToastShow("☁ 另一台设备更新于 " + clockText(remote) + " · 点此同步");
+      }
+    });
+  }
+
+  function makeSyncCode() {
+    var abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    var pick = function (n) {
+      var s = "";
+      for (var i = 0; i < n; i++) s += abc.charAt(Math.floor(Math.random() * abc.length));
+      return s;
+    };
+    return "SIG-" + pick(4) + "-" + pick(4);
+  }
+
+  // ---------- 同步面板交互 ----------
+  var syncMask = document.getElementById("sync-mask");
+  var syncInput = document.getElementById("sync-code-input");
+
+  document.getElementById("btn-sync").addEventListener("click", function () {
+    syncInput.value = cloudMeta.code || "";
+    if (cloudMeta.code) {
+      var last = cloudMeta.remoteTs || cloudMeta.localTs;
+      cloudStatus((last ? "已同步 " + clockText(last) + " · " : "") + "码 " + cloudMeta.code, "ok");
+    } else {
+      cloudStatus("未设置 · 填一串同步码，或点「生成新码」", "");
+    }
+    syncToastHide();
+    syncMask.classList.add("open");
+  });
+
+  document.getElementById("btn-sync-gen").addEventListener("click", function () {
+    syncInput.value = makeSyncCode();
+    cloudStatus("新码已生成 · 点「保存并同步」生效", "busy");
+  });
+
+  document.getElementById("btn-sync-close").addEventListener("click", function () {
+    syncMask.classList.remove("open");
+  });
+  syncMask.addEventListener("click", function (ev) { if (ev.target === syncMask) syncMask.classList.remove("open"); });
+
+  document.getElementById("btn-sync-save").addEventListener("click", function () {
+    var code = (syncInput.value || "").trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (code.length < 6) { cloudStatus("同步码至少 6 位，例如 SIG-8F3K-2QDP", "err"); return; }
+    var changed = code !== cloudMeta.code;
+    cloudMeta.code = code;
+    if (changed) cloudMeta.remoteTs = 0;
+    saveCloudMeta();
+    cloudStatus("正在接入云端…", "busy");
+    cloudPull().then(function (res) {
+      if (res.err) { cloudStatus(cloudErrText() + "（码已保存）", "err"); return; }
+      if (res.snap) {
+        var remote = Number(res.snap.updated) || 0;
+        if (changed || remote > cloudMeta.localTs) { cloudApply(res.snap); location.reload(); return; }
+        cloudPush();
+        return;
+      }
+      cloudPush();
+    });
+  });
+
+  document.getElementById("btn-sync-now").addEventListener("click", function () {
+    if (!cloudMeta.code) { cloudStatus("先填同步码再点同步", "err"); return; }
+    cloudStatus("双向核对中…", "busy");
+    cloudPull().then(function (res) {
+      if (res.err) { cloudStatus(cloudErrText(), "err"); return; }
+      if (res.snap && (Number(res.snap.updated) || 0) > cloudMeta.localTs) {
+        cloudApply(res.snap);
+        location.reload();
+        return;
+      }
+      cloudPush();
+    });
+  });
+
+  document.getElementById("sync-toast").addEventListener("click", function () {
+    syncToastHide();
+    cloudStatus("正在拉取云端…", "busy");
+    cloudPull().then(function (res) {
+      if (res.err || !res.snap) { cloudStatus(res.err ? cloudErrText() : "云端没有数据 · 稍后再试", "err"); return; }
+      cloudApply(res.snap);
+      location.reload();
+    });
   });
 
   // ---------- 启动 ----------
@@ -1774,6 +2083,15 @@
   initSprint();
   initPoints();
   setInterval(checkDayRollover, 20000);
+
+  // 云同步:开页核对 + 定时/切回前台核对
+  cloudStart();
+  setInterval(cloudPoll, 20000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) cloudPoll(); });
+  window.addEventListener("focus", cloudPoll);
+  window.addEventListener("pagehide", function () {
+    if (cloudMeta.code && cloudTimer) { clearTimeout(cloudTimer); cloudTimer = null; cloudPush(); }
+  });
 })();
 </script>
 </body>
